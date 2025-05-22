@@ -19,13 +19,15 @@
             <text qname="mei:title" boost="2.0"/>
             <text qname="mei:annot"/>
         </lucene>
-        <create qname="@type" type="xs:string"/>
-        <create qname="@plist" type="xs:string"/>
-        <create qname="@facs" type="xs:string"/>
-        <create qname="@n" type="xs:string"/>
-        <create qname="@num" type="xs:integer"/>
-        <create qname="@xml:lang" type="xs:string"/>
-        <create qname="@xml:id" type="xs:string"/>
-        <create qname="@id" type="xs:string"/>
+        <range>
+            <create qname="@type" type="xs:string"/>
+            <create qname="@plist" type="xs:string"/>
+            <create qname="@facs" type="xs:string"/>
+            <create qname="@n" type="xs:string"/>
+            <create qname="@num" type="xs:integer"/>
+            <create qname="@xml:lang" type="xs:string"/>
+            <create qname="@xml:id" type="xs:string"/>
+            <create qname="@id" type="xs:string"/>
+        </range>
     </index>
 </collection>
