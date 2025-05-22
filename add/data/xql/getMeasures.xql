@@ -48,14 +48,14 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
                 $labelsAnalyzed
         ) else
             distinct-values($mdiv//mei:measure/@n)
-                
-    let $measureNsDistinct := eutil:sort-as-numeric-alpha($measureNs)
+    
+    let $measureNs := eutil:sort-as-numeric-alpha($measureNs)
     
     return array {
         if ($mdiv//mei:parts) then (
             (: process encoded parts :)
             
-                for $measureN in $measureNsDistinct
+                for $measureN in $measureNs
                 let $measureNNumber := number($measureN)
                 let $measures :=
                     if ($mdivMeasureLabels != ()) then
