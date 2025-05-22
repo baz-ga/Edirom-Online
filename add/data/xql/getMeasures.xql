@@ -27,34 +27,33 @@ declare option output:media-type "application/json";
 declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as array(*)* {
 
     let $mdiv := doc($meiUri)/id($mdivID)
-
+    
+    let $measureNs :=
+        if ($mdiv//mei:measure/@label) then (
+            let $labels := $mdiv//mei:measure/@label/string()
+            for $label in $labels
+            let $labelsAnalyzed :=
+                if (contains($label, '–')) then (
+                    (:substring-before($label, '–'):)
+                    let $first := substring-before($label, '–')
+                    let $last := substring-after($label, '–')
+                    let $steps := xs:integer(number($last) - number($first) + number(1))
+                    for $i in 1 to $steps
+                    return
+                        string(number($first) + $i - 1)
+                ) else
+                    ($label)
+            return
+                $labelsAnalyzed
+        ) else
+            ($mdiv//mei:measure/@n)
+                
+    let $measureNsDistinct := distinct-values(eutil:sort-as-numeric-alpha($measureNs))
+    
     return array {
         if ($mdiv//mei:parts) then (
             (: process encoded parts :)
             
-            let $measureNs :=
-                if ($mdiv//mei:measure/@label) then (
-                    let $labels := $mdiv//mei:measure/@label/string()
-                    for $label in $labels
-                    let $labelsAnalyzed :=
-                        if (contains($label, '–')) then (
-                            (:substring-before($label, '–'):)
-                            let $first := substring-before($label, '–')
-                            let $last := substring-after($label, '–')
-                            let $steps := xs:integer(number($last) - number($first) + number(1))
-                            for $i in 1 to $steps
-                            return
-                                string(number($first) + $i - 1)
-                        ) else
-                            ($label)
-                    return
-                        $labelsAnalyzed
-                ) else
-                    ($mdiv//mei:measure/@n)
-            
-            let $measureNsDistinct := distinct-values(eutil:sort-as-numeric-alpha($measureNs))
-            
-            return
                 for $measureN in $measureNsDistinct
                 let $measureNNumber := number($measureN)
                 let $measures :=
