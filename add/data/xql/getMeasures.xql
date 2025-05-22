@@ -30,7 +30,7 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
     
     let $mdivMeasureLabels := distinct-values($mdiv//mei:measure/@label)
     
-    let $measureNs :=
+    let $mdivMeasureNs :=
         if ($mdivMeasureLabels != ()) then (
             for $label in $mdivMeasureLabels
             let $labelsAnalyzed :=
@@ -49,13 +49,13 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
         ) else
             distinct-values($mdiv//mei:measure/@n)
     
-    let $measureNs := eutil:sort-as-numeric-alpha($measureNs)
+    let $mdivMeasureNs := eutil:sort-as-numeric-alpha($measureNs)
     
     return array {
         if($mdiv//mei:parts) then (
             (: process encoded parts :)
             
-            for $measureN in $measureNs
+            for $measureN in $mdivMeasureNs
             
             let $measureNNumber := number($measureN)
             
