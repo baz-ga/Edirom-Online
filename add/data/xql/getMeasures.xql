@@ -79,7 +79,7 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                     map {
                         "id": 'measure_' || $mdiv/@xml:id || '_' || $measureN,
                         "measures": $measures,
-                        "mdivs": $mdiv/string(@xml:id),
+                        "mdivs": array { $mdiv/string(@xml:id) },
                         "name": $measureN
                     }
         ) else (
