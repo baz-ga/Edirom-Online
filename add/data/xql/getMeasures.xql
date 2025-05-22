@@ -24,12 +24,14 @@ declare option output:media-type "application/json";
 
 (: FUNCTION DECLARATIONS =================================================== :)
 
-declare function local:getMeasures($mei as node(), $mdivID as xs:string) as array(*)* {
-    array {
+declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as array(*)* {
+
+    let $mdiv := doc($meiUri)/id($mdivID)
+
+    return array {
         if ($mei//mei:parts) then (
             (: process encoded parts :)
             
-            let $mdiv := $mei/id($mdivID)
             let $measureNs :=
                 if ($mdiv//mei:measure/@label) then (
                     let $labels := $mdiv//mei:measure/@label/string()
@@ -84,10 +86,10 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                     }
         ) else (
             (: process an mei:score :)
-            if ($mei/id($mdivID)//mei:measure[@label]) then (
-                for $measureN in $mei/id($mdivID)//mei:measure/data(@label)
+            if ($mdiv//mei:measure[@label]) then (
+                for $measureN in $mdiv//mei:measure/data(@label)
             (: multiple measure with the same label can occur if the measure breaks a system, getting all of them :)
-            let $measures := $mei/id($mdivID)//mei:measure[@label = $measureN]
+            let $measures := $mdiv//mei:measure[@label = $measureN]
                 let $measure := $measures[1]
                 return
                     map {
@@ -97,9 +99,9 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                         "name": $measureN (: Hier Unterscheiden wg. Auftakt. :)
                     }
             ) else (
-                for $measureN in $mei/id($mdivID)//mei:measure/data(@n)
+                for $measureN in $mdiv//mei:measure/data(@n)
             (: multiple measure with the same label can occur if the measure breaks a system, getting all of them  :)
-            let $measures := $mei/id($mdivID)//mei:measure[@n = $measureN]
+            let $measures := $mdiv//mei:measure[@n = $measureN]
                 let $measure := $measures[1]
                 return
                     map {
@@ -115,9 +117,8 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
 
 (: QUERY BODY ============================================================== :)
 
-let $uri := request:get-parameter('uri', '')
+let $meiUri := request:get-parameter('uri', '')
 let $mdivID := request:get-parameter('mdiv', '')
-let $mei := doc($uri)/root()
 
 return
-    local:getMeasures($mei, $mdivID)
+    local:getMeasures($meiUri, $mdivID)
