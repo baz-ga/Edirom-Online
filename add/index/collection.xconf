@@ -28,6 +28,12 @@
             <create qname="@xml:lang" type="xs:string"/>
             <create qname="@xml:id" type="xs:string"/>
             <create qname="@id" type="xs:string"/>
+            <create qname="mei:measure">
+                <field name="facs" match="@facs" type="xs:IDREF"/>
+                <field name="id" match="@xml:id" type="xs:ID"/>
+                <field name="n" match="@n" type="xs:integer"/>
+                <field name="label" match="@label" type="xs:string"/>
+            </create>
         </range>
     </index>
 </collection>
