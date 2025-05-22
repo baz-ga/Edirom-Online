@@ -1,5 +1,4 @@
 <collection xmlns="http://exist-db.org/collection-config/1.0">
-        <fulltext default="none" attributes="no"/>
     <index xmlns:mei="http://www.music-encoding.org/ns/mei" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xs="http://www.w3.org/2001/XMLSchema">
         <lucene>
             <analyzer class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
