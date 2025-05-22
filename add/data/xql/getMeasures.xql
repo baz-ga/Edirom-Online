@@ -29,7 +29,7 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
     let $mdiv := doc($meiUri)/id($mdivID)
 
     return array {
-        if ($mei//mei:parts) then (
+        if ($mdiv//mei:parts) then (
             (: process encoded parts :)
             
             let $measureNs :=
