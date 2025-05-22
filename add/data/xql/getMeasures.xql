@@ -27,11 +27,12 @@ declare option output:media-type "application/json";
 declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as array(*)* {
 
     let $mdiv := doc($meiUri)/id($mdivID)
+
+    let $mdivMeasureLabels := distinct-values($mdiv//mei:measure/@label)
     
     let $measureNs :=
-        if ($mdiv//mei:measure/@label) then (
-            let $labels := $mdiv//mei:measure/@label/string()
-            for $label in $labels
+        if ($mdivMeasureLabels != ()) then (
+            for $label in $mdivMeasureLabels
             let $labelsAnalyzed :=
                 if (contains($label, '–')) then (
                     (:substring-before($label, '–'):)
@@ -57,14 +58,14 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
                 for $measureN in $measureNsDistinct
                 let $measureNNumber := number($measureN)
                 let $measures :=
-                    if ($mdiv//mei:measure/@label) then
+                    if ($mdivMeasureLabels != ()) then
                         ($mdiv//mei:measure[.//mei:multiRest][number(substring-before(@label, '–')) <= $measureNNumber][.//mei:multiRest/number(@num) gt ($measureNNumber - number(substring-before(@label, '–')))])
                     else
                         ($mdiv//mei:measure[.//mei:multiRest][number(@n) lt $measureNNumber][.//mei:multiRest/number(@num) gt ($measureNNumber - number(@n))])
                 let $measures :=
                     for $part in $mdiv//mei:part
                     let $partMeasures :=
-                        if ($part//mei:measure/@label) then
+                        if ($mdivMeasureLabels != ()) then
                             ($part//mei:measure[@label = $measureN][1])
                         else
                             ($part//mei:measure[@n = $measureN][1])
@@ -85,8 +86,8 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
                     }
         ) else (
             (: process an mei:score :)
-            if ($mdiv//mei:measure[@label]) then (
-                for $measureN in $mdiv//mei:measure/data(@label)
+            if ($mdivMeasureLabels != ()) then (
+                for $measureN in $mdivMeasureLabels
             (: multiple measure with the same label can occur if the measure breaks a system, getting all of them :)
             let $measures := $mdiv//mei:measure[@label = $measureN]
                 let $measure := $measures[1]
