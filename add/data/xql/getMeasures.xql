@@ -85,7 +85,6 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                 for $measureN in $mei/id($mdivID)//mei:measure/data(@label)
                 let $measures := $mei/id($mdivID)//mei:measure[@label = $measureN]
                 let $measure := $measures[1]
-                (:let $measureLabel := if(exists($measure/@label) and not(contains($measure/@label,'/'))) then($measure/@label) else($measure/@n):)
                 return
                     map {
                         "id": $measure/string(@xml:id),
@@ -97,7 +96,6 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                 for $measureN in $mei/id($mdivID)//mei:measure/data(@n)
                 let $measures := $mei/id($mdivID)//mei:measure[@n = $measureN]
                 let $measure := $measures[1]
-                (:let $measureLabel := if(exists($measure/@label) and not(contains($measure/@label,'/'))) then($measure/@label) else($measure/@n):)
                 return
                     map {
                         "id": $measure/string(@xml:id),
