@@ -27,6 +27,8 @@ declare option output:media-type "application/json";
 declare function local:getMeasures($mei as node(), $mdivID as xs:string) as array(*)* {
     array {
         if ($mei//mei:parts) then (
+            (: process encoded parts :)
+            
             let $mdiv := $mei/id($mdivID)
             let $measureNs :=
                 if ($mdiv//mei:measure/@label) then (
@@ -81,9 +83,11 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                         "name": $measureN
                     }
         ) else (
+            (: process an mei:score :)
             if ($mei/id($mdivID)//mei:measure[@label]) then (
                 for $measureN in $mei/id($mdivID)//mei:measure/data(@label)
-                let $measures := $mei/id($mdivID)//mei:measure[@label = $measureN]
+            (: multiple measure with the same label can occur if the measure breaks a system, getting all of them :)
+            let $measures := $mei/id($mdivID)//mei:measure[@label = $measureN]
                 let $measure := $measures[1]
                 return
                     map {
@@ -94,7 +98,8 @@ declare function local:getMeasures($mei as node(), $mdivID as xs:string) as arra
                     }
             ) else (
                 for $measureN in $mei/id($mdivID)//mei:measure/data(@n)
-                let $measures := $mei/id($mdivID)//mei:measure[@n = $measureN]
+            (: multiple measure with the same label can occur if the measure breaks a system, getting all of them  :)
+            let $measures := $mei/id($mdivID)//mei:measure[@n = $measureN]
                 let $measure := $measures[1]
                 return
                     map {
