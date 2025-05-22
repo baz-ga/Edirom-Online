@@ -57,7 +57,8 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
             
             for $measureN in $mdivMeasureNs
             
-            let $measureNNumber := number($measureN)
+            (: get number only for comparison of numeric-alpha measure names :)
+            let $measureNNumber := number(replace($measureN, '\D', '' ))
             
             let $measures :=
                 if ($mdivMeasureLabels != ()) then
