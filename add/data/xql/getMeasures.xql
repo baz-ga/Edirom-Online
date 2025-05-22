@@ -88,7 +88,7 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
             return
                 map {
                     "id": 'measure_' || $mdiv/@xml:id || '_' || $measureN,
-                    "measures": $measures,
+                    "measures": array { $measures },
                     "mdivs": array { $mdiv/string(@xml:id) },
                     "name": $measureN
                 }
