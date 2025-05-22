@@ -49,7 +49,7 @@ declare function local:getMeasures($meiUri as xs:anyURI, $mdivID as xs:ID) as ar
         ) else
             distinct-values($mdiv//mei:measure/@n)
     
-    let $mdivMeasureNs := eutil:sort-as-numeric-alpha($measureNs)
+    let $mdivMeasureNs := eutil:sort-as-numeric-alpha($mdivMeasureNs)
     
     return array {
         if($mdiv//mei:parts) then (
