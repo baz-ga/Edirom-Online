@@ -32,7 +32,6 @@ if [ -f local.properties ]; then
 fi
 
 # check if local.properties exists
-# if doesn not exists source it
 if [ ! -f local.properties ]; then
     # echo a message if it does not exist
     echo "local.properties not found."
