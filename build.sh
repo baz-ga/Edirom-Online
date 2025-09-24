@@ -3,6 +3,34 @@
 # This script builds the project
 set -e
 
+# ask user if he wants to make sure volumes from previous build and docker compose runs are deleted
+    read -p "Do you want to delete volumes from previous build and docker compose runs? (y/n): " delete_volumes
+    if [ "$delete_volumes" == "y" ]; then
+        echo "Deleting volumes..."
+        if [ -f local.properties ]; then
+            source local.properties
+        fi
+        docker compose up -d
+        docker compose down --volumes --remove-orphans
+    fi
+
+# check if local.properties exists
+if [ -f local.properties ]; then
+    # warn about existing local.properties
+    echo "Warning: local.properties already exists with the following properties:"
+    cat local.properties
+
+    # ask user if they want to overwrite it
+    read -p "Do you want to overwrite the existing local.properties file? (y/n): " overwrite_local_properties
+    if [ "$overwrite_local_properties" == "y" ]; then
+        echo "Deleting existing local.properties file..."
+        rm local.properties
+
+    else
+        echo "Continuing with existing local.properties file."
+    fi
+fi
+
 # check if local.properties exists
 # if doesn not exists source it
 if [ ! -f local.properties ]; then
