@@ -3,7 +3,7 @@ services:
     container_name: eXist-db
     build:
       # location and name of backend Dockerfile
-      context: ./backend   
+      context: ./backend
       dockerfile: Dockerfile
       args:
         SOURCE: ${BE_REPO:-https://github.com/Edirom/Edirom-Online-Backend.git}
