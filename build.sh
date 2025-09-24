@@ -76,8 +76,10 @@ fi
 # append any arguments passed to this script
 if [ -z "$1" ]; then
     echo "No arguments provided, running docker compose up"
+    docker compose build --no-cache
     docker compose up --force-recreate --build
 else
     echo "Running docker compose up with arguments: $@"
+    docker compose build --no-cache
     docker compose up --force-recreate --build "$@"
 fi
