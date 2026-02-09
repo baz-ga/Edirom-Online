@@ -9,6 +9,11 @@ services:
         SOURCE: ${BE_REPO:-https://github.com/Edirom/Edirom-Online-Backend.git}
         BRANCH: ${BE_BRANCH:-v1.3.0}
         EDITION: ${EDITION_XAR}
+    # Note: depends_on only controls runtime startup order, not build-time dependencies.
+    # Builder image must be built explicitly first: docker compose build builder
+    # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
+    # depends_on:
+    #  - builder
     ports:
       # expose eXist-db
       - "${BE_PORT:-8080}:8080"
@@ -24,6 +29,19 @@ services:
         # Backend port for frontend configuration
         BE_PORT: ${BE_PORT:-8080}
         SENCHA_BUILD_ENV: ${SENCHA_BUILD_ENV:-production}
+    # Note: depends_on only controls runtime startup order, not build-time dependencies.
+    # Builder image must be built explicitly first: docker compose build builder
+    # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
+    # depends_on:
+    #  - builder
     ports:
       # expose nginx
       - "${FE_PORT:-8089}:80"
+  # Shared builder service - to be built before compose up
+  builder:
+    build:
+      context: ./builder
+      dockerfile: Dockerfile
+      cache_from:
+        - edirom-online-edirom-builder:latest
+    image: edirom-online-edirom-builder:latest
