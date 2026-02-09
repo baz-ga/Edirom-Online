@@ -10,37 +10,12 @@
 # 1. Build Environment
 #########################
 
-FROM eclipse-temurin:21 as builder
+FROM edirom-online-edirom-builder:latest AS eo-builder
 
-ARG ANT_VERSION=1.10.12
 ARG SOURCE=https://github.com/Edirom/Edirom-Online-Backend.git
 ARG BRANCH=v1.4.0
 ARG EDITION
 ARG ROASTER_VERSION=1.11.0
-
-
-# Install wget and unzip and ruby and other dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl \
-        sudo \
-        wget \
-        git \
-        unzip \
-		libfreetype6 \
-		fontconfig \
-	&& rm -rf /var/lib/apt/lists/*
-
-# Download and extract Apache Ant to opt folder
-RUN wget --no-check-certificate --no-cookies http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
-    wget --no-check-certificate --no-cookies http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz.sha512 && \
-    echo "$(cat apache-ant-${ANT_VERSION}-bin.tar.gz.sha512) apache-ant-${ANT_VERSION}-bin.tar.gz" | sha512sum -c && \
-    tar -zvxf apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt/ && \
-    ln -s /opt/apache-ant-${ANT_VERSION} /opt/ant && \
-    unlink apache-ant-${ANT_VERSION}-bin.tar.gz && \
-    unlink apache-ant-${ANT_VERSION}-bin.tar.gz.sha512
-
-# Put ant in the path
-ENV PATH="/opt/ant/bin:${PATH}"
 
 
 ###########################
@@ -82,6 +57,6 @@ ENV EXIST_PASSWORD=changeme
 ADD ./autodeploy ${EXIST_HOME}/autodeploy/
 
 # copy built XARs to autodeploy directory of exist
-COPY --from=builder /opt/eo-backend/build-xar/*.xar ${EXIST_HOME}/autodeploy/
-COPY --from=builder /opt/eo-editions/*.xar ${EXIST_HOME}/autodeploy/
-COPY --from=builder /opt/roaster/*.xar ${EXIST_HOME}/autodeploy/
+COPY --from=eo-builder /opt/eo-backend/build-xar/*.xar ${EXIST_HOME}/autodeploy/
+COPY --from=eo-builder /opt/eo-editions/*.xar ${EXIST_HOME}/autodeploy/
+COPY --from=eo-builder /opt/roaster/*.xar ${EXIST_HOME}/autodeploy/
