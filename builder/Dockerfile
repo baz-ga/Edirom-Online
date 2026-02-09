@@ -2,9 +2,11 @@
 # Builder Environment Dockerfile
 # Interactive build environment for local development
 # Keeps build tools and dependencies alive for fast iteration
+# Note: Uses Java 8 for Sencha Cmd (frontend) compatibility
 #############################################################
 
-FROM eclipse-temurin:21
+# Use Java 8 for Sencha Cmd compatibility (requires Nashorn JavaScript engine)
+FROM eclipse-temurin:8-jdk-focal
 
 ARG ANT_VERSION=1.10.12
 
