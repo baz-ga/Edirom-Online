@@ -30,6 +30,7 @@ RUN echo "Cloning from repo $SOURCE" && \
     echo "Building Backend XAR..." && \
     ant
 
+# Download edition XAR if specified
 RUN if [ -n "$EDITION" ]; then \
         echo "Downloading Edition XAR from $EDITION" && \
         mkdir -p /opt/eo-editions && \
