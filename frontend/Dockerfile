@@ -10,6 +10,7 @@
 # 1. Build Environment
 #########################
 
+# Use shared builder image
 FROM edirom-online-edirom-builder:latest AS eo-builder
 
 ARG SOURCE=https://github.com/Edirom/Edirom-Online-Frontend.git
