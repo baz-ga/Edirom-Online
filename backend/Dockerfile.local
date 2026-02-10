@@ -1,0 +1,56 @@
+########################################
+# Local dev: Multi-stage Dockerfile
+# Uses mounted local frontend source
+# 1. Set up the build environment
+# 2. Build Edirom-Online packages
+# 3. Run the eXist-db and deploy XARs
+#######################################
+
+
+#########################
+# 1. Build Environment
+#########################
+
+# Use shared builder image
+FROM edirom-online-edirom-builder:latest AS eo-builder
+
+ARG EDITION
+
+###########################
+# 2. Edirom-Online Backend
+###########################
+
+# Get build for Edirom-Online-Backend
+WORKDIR /opt/eo-backend
+
+# Copy source code from build context (BE_LOCAL_SOURCE)
+COPY . .
+
+# Build the local source
+RUN echo "Building Backend XAR from local source..." && \
+    ant
+
+# Download edition XAR if specified
+RUN if [ -n "$EDITION" ]; then \
+        echo "Downloading Edition XAR from $EDITION" && \
+        mkdir -p /opt/eo-editions && \
+        cd /opt/eo-editions && \
+        curl -L -O "$EDITION"; \
+    else \
+        mkdir -p /opt/eo-editions && \
+        echo "Note: EDITION_XAR not provided. Please add manually to eXist-db."; \
+    fi
+
+#########################
+# 3. Run/deploy eXist-db
+#########################
+
+FROM stadlerpeter/existdb:6
+ENV EXIST_PASSWORD=changeme
+
+# add XARs to autodeploy directory of exist
+ADD ./autodeploy ${EXIST_HOME}/autodeploy/
+
+# copy built XARs to autodeploy directory of exist
+COPY --from=eo-builder /opt/eo-backend/build-xar/*.xar ${EXIST_HOME}/autodeploy/
+COPY --from=eo-builder /opt/eo-editions/*.xar ${EXIST_HOME}/autodeploy/
