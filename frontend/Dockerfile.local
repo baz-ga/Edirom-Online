@@ -1,0 +1,49 @@
+########################################
+# Local dev multi-stage Dockerfile
+# Uses mounted local frontend source
+# 1. Set up the build environment
+# 2. Build Edirom-Online packages
+# 3. Run the nginx and deploy frontend
+########################################
+
+#########################
+# 1. Build Environment
+#########################
+
+# Use shared builder image
+FROM edirom-online-edirom-builder:latest AS eo-builder
+
+ARG BE_PORT
+
+############################
+# 2. Build Local Frontend
+############################
+
+# Get build for Edirom-Online Frontend
+WORKDIR /opt/eo-frontend
+
+# Copy source code from build context (FE_LOCAL_SOURCE)
+COPY . .
+
+# Configure backend port and build
+RUN if [ -n "$BE_PORT" ] && [ "$BE_PORT" != "8080" ]; then \
+        echo "Writing backend.port=$BE_PORT to local.properties…"; \
+        if [ -f "./local.properties" ]; then \
+            sed -i '/^backend\.port=/d' local.properties; \
+            echo "backend.port=$BE_PORT" >> local.properties; \
+        else \
+            echo "backend.port=$BE_PORT" >> local.properties; \
+        fi \
+    fi && \
+    echo "Building Frontend XAR..." && \
+    ./build.sh
+
+#########################
+# 3. Run/deploy nginx
+#########################
+
+# Use nginx as the base image
+FROM nginx:alpine
+
+# copy build files to directory
+COPY --from=eo-builder /opt/eo-frontend/build/ /usr/share/nginx/html/
