@@ -16,7 +16,7 @@ FROM edirom-online-edirom-builder:latest AS eo-builder
 ARG BE_PORT
 
 ############################
-# 2. Build Local Frontend
+# 2. Edirom-Online Frontend
 ############################
 
 # Get build for Edirom-Online Frontend
