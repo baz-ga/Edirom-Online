@@ -31,12 +31,29 @@ If this command succeeds, BuildKit is available on your system.
 
 ## Docker Compose Profiles for Local Backend and Frontend Development
 
-Aside from the standard `docker compose up` command, which runs Edirom Online as described in the [README](../README.md), Edirom Online supports Docker Compose profiles for development scenarios with local source code.
+Aside from the standard `docker compose --profile default up` command, which runs Edirom Online as described in the [README](../README.md), Edirom Online supports Docker Compose profiles for development scenarios with local source code.
 
 > [!NOTE]
 > **Key Benefit: Test before committing and pushing**
 >
 > The profiles for local frontend and backend source code will allow you to build and run your local changes before committing and pushing them to source control.
+
+### Profile Matrix
+
+The Docker Compose configuration uses profiles to ensure mutual exclusivity between regular and local development services. This prevents port conflicts and ensures only the intended services are running.
+
+| Command | Backend Service | Frontend Service |
+|---------|----------------|------------------|
+| `docker compose --profile default up` | Regular (from remote repo) | Regular (from remote repo) |
+| `docker compose --profile local-backend-source up` | **Local** (from `BE_LOCAL_SOURCE`) | Regular (from remote repo) |
+| `docker compose --profile local-frontend-source up` | Regular (from remote repo) | **Local** (from `FE_LOCAL_SOURCE`) |
+| `docker compose --profile local-backend-source --profile local-frontend-source up` | **Local** (from `BE_LOCAL_SOURCE`) | **Local** (from `FE_LOCAL_SOURCE`) |
+
+**Key Features:**
+- **Automatic pairing**: Each local profile automatically includes the regular version of the other service
+- **No conflicts**: Regular and local versions of the same service never run simultaneously
+- **Port safety**: Prevents port binding conflicts between services
+- **Intuitive workflow**: Simply specify which component you're developing locally, the complement service starts automatically
 
 > [!TIP]
 > Combine with the [Shared Builder Architecture](#shared-builder-architecture)’s `local-dev-builder` to interactively build and deploy changes without restarting the Docker Compose setup.
@@ -72,12 +89,13 @@ git clone https://github.com/Edirom/Edirom-Online-Backend.git ~/projects/Edirom-
 # Switch to the Edirom Online clone
 cd ~/projects/Edirom-Online
 
-# Set the environment variable
+# Enable BuildKit and set the backend source path
+export DOCKER_BUILDKIT=1
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
-# Start Edirom Online
+# Build and start Edirom Online with local backend
 # This will build the backend from your local source code
-docker compose --profile local-backend-source up
+docker compose --profile local-backend-source up --build
 ```
 
 If you have made changes in your local clone of Edirom-Online-Backend and want to redeploy these after building, please refer to [Deploying Backend Changes](#deploying-backend-changes).
@@ -120,12 +138,13 @@ git clone https://github.com/Edirom/Edirom-Online-Frontend.git ~/projects/Edirom
 # Switch to the Edirom Online clone
 cd ~/projects/Edirom-Online
 
-# Set the environment variable
+# Enable BuildKit and set the frontend source path
+export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 
-# Start Edirom Online
+# Build and start Edirom Online with local frontend
 # This will build the frontend from your local source code
-docker compose --profile local-frontend-source up
+docker compose --profile local-frontend-source up --build
 ```
 
 //TODO test standlaone
@@ -140,12 +159,13 @@ git clone https://github.com/Edirom/Edirom-Online.git ~/projects/Edirom-Online
 git clone https://github.com/Edirom/Edirom-Online-Frontend.git ~/projects/Edirom-Online-Frontend
 git clone https://github.com/Edirom/Edirom-Online-Backend.git ~/projects/Edirom-Online-Backend
 
-# Set both environment variables
+# Enable BuildKit and set both source paths
+export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
-# Start ONLY local development services (avoids conflicts with regular services)
-docker compose --profile local-frontend-source --profile local-backend-source up --no-deps edirom-online-frontend-local-source edirom-online-backend-local-source
+# Start both local development services
+docker compose --profile local-frontend-source --profile local-backend-source up
 ```
 
 > [!TIP]
@@ -188,7 +208,8 @@ The `local-dev-builder` profile facilitates interactive development with a persi
 > Running the interactive builder profile standalone is helpful if you want to make changes to the build processes. For frontend and backend development, we recommend [Combined Usage with Local Development Profiles](combined-usage-with-local-development-profiles).
 
 ```bash
-# Set source paths
+# Enable BuildKit and set source paths
+export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
@@ -210,20 +231,27 @@ docker compose exec edirom-builder bash
 #### Combined Usage with Local Development Profiles
 
 ```bash
-# 1. Set source paths
+# 1. Enable BuildKit and set source paths
+export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
-# 2. Build both services
-docker compose --profile local-frontend-source --profile local-backend-source build
+# 2. Build all three services
+docker compose --profile local-frontend-source --profile local-backend-source --profile local-dev-builder build
 
-# 3. Start ONLY local development services (avoids conflicts with regular services)
-docker compose --profile local-frontend-source --profile local-backend-source up --no-deps edirom-online-frontend-local-source edirom-online-backend-local-source
+# 3. Start ONLY local development services in detached mode (avoids conflicts with regular services)
+docker compose --profile local-frontend-source --profile local-backend-source --profile local-dev-builder up -d --no-deps edirom-online-frontend-local-source edirom-online-backend-local-source edirom-builder
 
-# 4. In another terminal, start the interactive builder for debugging
 docker compose --profile local-dev-builder up -d edirom-builder
+# 4. Enter edirom-builder interactive shell
+
 docker compose exec edirom-builder bash
 ```
+
+Fastlane:
+```bash
+ docker compose up -d edirom-online-frontend-local-source edirom-online-backend-local-source edirom-builder --build --no-deps
+ ```
 
 #### Deploying Frontend Changes
 
@@ -394,7 +422,8 @@ docker compose restart edirom-online-backend-local-source
 
 ### Build Individual Services
 ```bash
-# Set source paths (can be relative or absolute)
+# Enable BuildKit and set source paths (absolute paths recommended)
+export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=/path/to/frontend
 export BE_LOCAL_SOURCE=/path/to/backend
 
@@ -412,7 +441,10 @@ docker compose --profile local-frontend-source --profile local-backend-source bu
 ```bash
 # Build and start both frontend and backend with local source
 docker compose --profile local-frontend-source --profile local-backend-source up
+```
+//TODO the above seems to be bullshit
 
+```bash
 # Start ONLY local development services (recommended to avoid conflicts with regular services)
 docker compose --profile local-frontend-source --profile local-backend-source up --no-deps edirom-online-frontend-local-source edirom-online-backend-local-source
 ```
