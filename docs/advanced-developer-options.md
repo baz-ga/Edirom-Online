@@ -239,10 +239,10 @@ docker compose --profile local-dev-builder up -d edirom-builder
 docker compose exec edirom-builder bash
 ```
 
-Fastlane:
-```bash
- docker compose up -d edirom-online-frontend-local-source edirom-online-backend-local-source edirom-builder --build --no-deps
- ```
+> [!TIP] Fast-lane
+> ```bash
+> docker compose --profile local-frontend-source --profile local-backend-source --profile local-dev-builder up -d --build
+>```
 
 #### Deploying Frontend Changes
 
