@@ -137,10 +137,9 @@ docker compose build builder
 docker compose --profile local-frontend-source up --build
 ```
 
-//TODO test standlaone
-//TODO test no-deps
-
 You can rebuild in any way you want, whether natively on your host or by rebuilding the frontend service, for example, using the [Interactive Builder Profile](#interactive-builder-profile).
+
+After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend-source** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **edirom-online-frontend-local-source** service.
 
 ### Example Full Stack Development Workflow
 ```bash
