@@ -141,11 +141,17 @@ You can rebuild in any way you want, whether natively on your host or by rebuild
 After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend-source** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **edirom-online-frontend-local-source** service.
 
 ### Example Full Stack Development Workflow
+
+The profiles for local backend and fromtend development can also be combined for full stack developemt purposes. This is especially useful when adding completely new features to Edirom Online that require handling data and new GUI components.
+
 ```bash
 # Clone all three repositories
 git clone https://github.com/Edirom/Edirom-Online.git ~/projects/Edirom-Online
 git clone https://github.com/Edirom/Edirom-Online-Frontend.git ~/projects/Edirom-Online-Frontend
 git clone https://github.com/Edirom/Edirom-Online-Backend.git ~/projects/Edirom-Online-Backend
+
+# Switch to the Edirom Online clone
+cd ~/projects/Edirom-Online
 
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
@@ -154,7 +160,7 @@ export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 docker compose build builder
 
 # Start both local development services
-docker compose --profile local-frontend-source --profile local-backend-source up
+docker compose --profile local-frontend-source --profile local-backend-source up --build
 ```
 
 > [!TIP]
