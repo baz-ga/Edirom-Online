@@ -78,6 +78,9 @@ cd ~/projects/Edirom-Online
 # Set the backend source path (absolute path recommended)
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
+# Build the shared builder (first time only)
+docker compose build builder
+
 # Build and start Edirom Online with local backend
 # This will build the backend from your local source code
 docker compose --profile local-backend-source up --build
@@ -126,6 +129,9 @@ cd ~/projects/Edirom-Online
 # Set the frontend source path (absolute path recommended)
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 
+# Build the shared builder (first time only)
+docker compose build builder
+
 # Build and start Edirom Online with local frontend
 # This will build the frontend from your local source code
 docker compose --profile local-frontend-source up --build
@@ -145,6 +151,9 @@ git clone https://github.com/Edirom/Edirom-Online-Backend.git ~/projects/Edirom-
 
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
+
+# Build the shared builder (first time only)
+docker compose build builder
 
 # Start both local development services
 docker compose --profile local-frontend-source --profile local-backend-source up
