@@ -201,6 +201,7 @@ The `local-dev-builder` profile facilitates interactive development with a persi
 > Running the interactive builder profile standalone is helpful if you want to make changes to the build processes. For frontend and backend development, we recommend [Combined Usage with Local Development Profiles](combined-usage-with-local-development-profiles).
 
 ```bash
+# Set backend and frontend source paths (absolute paths recommended)
 export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
