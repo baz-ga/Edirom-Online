@@ -25,21 +25,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and extract Apache Ant to opt folder
-RUN wget --no-check-certificate --no-cookies http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
-    wget --no-check-certificate --no-cookies http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz.sha512 && \
+# Use cache mount to persist downloads across builds
+RUN --mount=type=cache,target=/var/cache/downloads \
+    if [ ! -f /var/cache/downloads/apache-ant-${ANT_VERSION}-bin.tar.gz ]; then \
+        wget --no-check-certificate --no-cookies http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz -O /var/cache/downloads/apache-ant-${ANT_VERSION}-bin.tar.gz && \
+        wget --no-check-certificate --no-cookies http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz.sha512 -O /var/cache/downloads/apache-ant-${ANT_VERSION}-bin.tar.gz.sha512; \
+    fi && \
+    cd /var/cache/downloads && \
     echo "$(cat apache-ant-${ANT_VERSION}-bin.tar.gz.sha512) apache-ant-${ANT_VERSION}-bin.tar.gz" | sha512sum -c && \
-    tar -zvxf apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt/ && \
-    ln -s /opt/apache-ant-${ANT_VERSION} /opt/ant && \
-    unlink apache-ant-${ANT_VERSION}-bin.tar.gz && \
-    unlink apache-ant-${ANT_VERSION}-bin.tar.gz.sha512
+    tar -zvxf /var/cache/downloads/apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt/ && \
+    ln -s /opt/apache-ant-${ANT_VERSION} /opt/ant
 
 # Download and install SenchaCmd Community Edition
-RUN curl --silent http://cdn.sencha.com/cmd/7.0.0.40/no-jre/SenchaCmd-7.0.0.40-linux-amd64.sh.zip -o /tmp/senchaCmd.zip && \
-    unzip /tmp/senchaCmd.zip -d /tmp  && \
-    unlink /tmp/senchaCmd.zip  && \
+# Use cache mount to persist downloads across builds
+RUN --mount=type=cache,target=/var/cache/downloads \
+    if [ ! -f /var/cache/downloads/senchaCmd.zip ]; then \
+        curl --silent http://cdn.sencha.com/cmd/7.0.0.40/no-jre/SenchaCmd-7.0.0.40-linux-amd64.sh.zip -o /var/cache/downloads/senchaCmd.zip; \
+    fi && \
+    unzip /var/cache/downloads/senchaCmd.zip -d /tmp && \
     chmod o+x /tmp/SenchaCmd-7.0.0.40-linux-amd64.sh && \
     /tmp/SenchaCmd-7.0.0.40-linux-amd64.sh -Dall=true -q -dir /opt/Sencha/Cmd/7.0.0.40 && \
-    unlink /tmp/SenchaCmd-7.0.0.40-linux-amd64.sh
+    rm /tmp/SenchaCmd-7.0.0.40-linux-amd64.sh
 
 # Put ant and sencha in the path
 ENV PATH="/opt/ant/bin:/opt/Sencha/Cmd:${PATH}"
