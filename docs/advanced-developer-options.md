@@ -186,12 +186,20 @@ The builder image uses `RUN --mount=type=cache` to persist downloaded archives (
 
 To clear only the download cache without affecting layer caches or image history:
 
+```bash
+docker buildx prune --filter type=exec.cachemount
+```
 
-1. **Builder Stage**: Docker Compose automatically builds the shared builder first
-2. **Source Context**: The local source directory of Edirom-Online-Frontend or Edirom-Online-Backend becomes the build context
-3. **Build Execution**: The Dockerfile copies your source and runs the build
-4. **Final Stage**: Build artifacts are copied to the final runtime image
+This removes only cache mount entries. All other BuildKit caches (intermediate layers, base image layers, etc.) are preserved, so subsequent builds remain fast.
 
+To preview what would be removed before committing:
+
+```bash
+docker buildx du --verbose
+```
+
+> [!WARNING]
+> `docker buildx prune` without a filter clears the **entire** BuildKit cache, including all intermediate layer caches across all images built with BuildKit. This forces a full rebuild from scratch on the next build. Use the `--filter type=exec.cachemount` flag to target only the download cache.
 
 ### Interactive Builder Profile
 
