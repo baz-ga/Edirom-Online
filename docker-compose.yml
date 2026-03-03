@@ -1,3 +1,15 @@
+# Docker Compose configuration for Edirom Online
+#
+# Usage:
+#   Default (remote sources): docker compose --profile default up
+#   Local backend development: export BE_LOCAL_SOURCE=/path/to/backend && docker compose --profile local-backend-source up
+#     (starts: local backend + regular frontend)
+#   Local frontend development: export FE_LOCAL_SOURCE=/path/to/frontend && docker compose --profile local-frontend-source up
+#     (starts: regular backend + local frontend)
+#   Both local: export BE_LOCAL_SOURCE=/path && export FE_LOCAL_SOURCE=/path && \
+#               docker compose --profile local-backend-source --profile local-frontend-source up -d --no-deps edirom-online-backend-local-source edirom-online-frontend-local-source
+#     (--no-deps required: both profiles together would otherwise also start the regular backend and frontend, causing port conflicts)
+#
 services:
   edirom-online-backend:
     container_name: eXist-db
