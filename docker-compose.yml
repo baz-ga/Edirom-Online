@@ -17,6 +17,8 @@ services:
     ports:
       # expose eXist-db
       - "${BE_PORT:-8080}:8080"
+    profiles:
+      - default
   edirom-online-frontend:
     container_name: nginx
     build:
@@ -37,6 +39,8 @@ services:
     ports:
       # expose nginx
       - "${FE_PORT:-8089}:80"
+    profiles:
+      - default
   # Shared builder service - to be built before compose up
   builder:
     build:
