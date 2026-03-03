@@ -6,28 +6,14 @@ This document covers advanced configuration options for developers working on th
 
 ### Docker BuildKit
 
-The Edirom Online build system uses Docker BuildKit for optimized caching of build dependencies (Apache Ant, SenchaCmd). **BuildKit must be enabled** for the build process to work correctly.
-
-**Enable BuildKit:**
-
-Mac/Linux:
-```bash
-export DOCKER_BUILDKIT=1
-```
-
-Windows:
-```bash
-set DOCKER_BUILDKIT=1
-```
-
-You can make this permanent by adding it to your shell configuration file (e.g., `~/.bashrc`, `~/.zshrc`) or Windows environment variables.
+The builder image uses BuildKit features for optimized caching of build dependencies. BuildKit is enabled by default in Docker Compose v2+, which is required by the `docker compose` command (without hyphen) used throughout this documentation — no manual configuration should be needed on current Docker installations.
 
 **Verify BuildKit is available:**
 ```bash
 docker buildx version
 ```
 
-If this command succeeds, BuildKit is available on your system.
+The builder image uses BuildKit cache mounts to persist downloads across builds. See [Download Cache](#download-cache) for details on managing this cache, or [Build Failures: BuildKit Not Available](#build-failures-buildkit-not-available) if you encounter related build errors.
 
 ## Docker Compose Profiles for Local Backend and Frontend Development
 
@@ -89,8 +75,7 @@ git clone https://github.com/Edirom/Edirom-Online-Backend.git ~/projects/Edirom-
 # Switch to the Edirom Online clone
 cd ~/projects/Edirom-Online
 
-# Enable BuildKit and set the backend source path
-export DOCKER_BUILDKIT=1
+# Set the backend source path (absolute path recommended)
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
 # Build and start Edirom Online with local backend
@@ -138,8 +123,7 @@ git clone https://github.com/Edirom/Edirom-Online-Frontend.git ~/projects/Edirom
 # Switch to the Edirom Online clone
 cd ~/projects/Edirom-Online
 
-# Enable BuildKit and set the frontend source path
-export DOCKER_BUILDKIT=1
+# Set the frontend source path (absolute path recommended)
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 
 # Build and start Edirom Online with local frontend
@@ -159,8 +143,6 @@ git clone https://github.com/Edirom/Edirom-Online.git ~/projects/Edirom-Online
 git clone https://github.com/Edirom/Edirom-Online-Frontend.git ~/projects/Edirom-Online-Frontend
 git clone https://github.com/Edirom/Edirom-Online-Backend.git ~/projects/Edirom-Online-Backend
 
-# Enable BuildKit and set both source paths
-export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
@@ -208,8 +190,6 @@ The `local-dev-builder` profile facilitates interactive development with a persi
 > Running the interactive builder profile standalone is helpful if you want to make changes to the build processes. For frontend and backend development, we recommend [Combined Usage with Local Development Profiles](combined-usage-with-local-development-profiles).
 
 ```bash
-# Enable BuildKit and set source paths
-export DOCKER_BUILDKIT=1
 export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
@@ -231,8 +211,7 @@ docker compose exec edirom-builder bash
 #### Combined Usage with Local Development Profiles
 
 ```bash
-# 1. Enable BuildKit and set source paths
-export DOCKER_BUILDKIT=1
+# 1. Set source paths (absolute paths recommended)
 export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
@@ -422,8 +401,7 @@ docker compose restart edirom-online-backend-local-source
 
 ### Build Individual Services
 ```bash
-# Enable BuildKit and set source paths (absolute paths recommended)
-export DOCKER_BUILDKIT=1
+# Set source paths (absolute paths recommended)
 export FE_LOCAL_SOURCE=/path/to/frontend
 export BE_LOCAL_SOURCE=/path/to/backend
 
@@ -442,7 +420,6 @@ docker compose --profile local-frontend-source --profile local-backend-source bu
 # Build and start both frontend and backend with local source
 docker compose --profile local-frontend-source --profile local-backend-source up
 ```
-//TODO the above seems to be bullshit
 
 ```bash
 # Start ONLY local development services (recommended to avoid conflicts with regular services)
