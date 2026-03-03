@@ -86,10 +86,9 @@ docker compose build builder
 docker compose --profile local-backend-source up --build
 ```
 
-If you have made changes in your local clone of Edirom-Online-Backend and want to redeploy these after building, please refer to [Deploying Backend Changes](#deploying-backend-changes).
+You can rebuild in any way you want, whether natively on your host or by rebuilding the frontend service, for example, using the [Interactive Builder Profile](#interactive-builder-profile).
 
-//TODO test just running this profile
-//TODO test running instead of regular backend
+If you have made changes in your local clone of Edirom-Online-Backend and want to redeploy these after building, please refer to [Deploying Backend Changes](#deploying-backend-changes).
 
 ### Profile for Local Frontend Development
 
