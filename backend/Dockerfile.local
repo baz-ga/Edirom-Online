@@ -48,8 +48,8 @@ RUN if [ -n "$EDITION" ]; then \
 FROM stadlerpeter/existdb:6
 ENV EXIST_PASSWORD=changeme
 
-# add XARs to autodeploy directory of exist
-ADD ./autodeploy ${EXIST_HOME}/autodeploy/
+# add XARs to autodeploy directory of exist (from additional_contexts)
+COPY --from=backend ./autodeploy ${EXIST_HOME}/autodeploy/
 
 # copy built XARs to autodeploy directory of exist
 COPY --from=eo-builder /opt/eo-backend/build-xar/*.xar ${EXIST_HOME}/autodeploy/
