@@ -164,26 +164,24 @@ docker compose --profile local-frontend-source --profile local-backend-source up
 
 ## Shared Builder Architecture
 
-Edirom Online offers a shared builder architecture to optimise build times and minimise duplication in the Docker build process. Both the frontend and backend Dockerfiles use it for building; i.e., it serves as the _shared_ base for all builds in the Docker Compose setup.
+Edirom Online offers a shared builder architecture to optimise build times and minimise duplication in the Docker build process. Both the frontend and backend Dockerfiles use it for building; i.e., it serves as the _shared_ base for all builds in the Docker Compose setup. The shared builder is defined in **`builder/Dockerfile`**. Moreover it is used as basis for the [Interactive Builder Profile](#interactive-builder-profile) in the edirom-builder service.
 
 The shared builder provides a build environment containing:
-- Java 8 JRE
-- Apache Ant
-- SenchaCmd (for frontend builds)
-- Build dependencies (curl, wget, git, etc.)
+
+- Java 8 JDK (eclipse-temurin:8-jdk-focal)
+- Apache Ant 1.10.12
+- SenchaCmd 7.0.0.40 (for frontend builds)
+- Build dependencies (curl, sudo, wget, git, unzip)
+- Font libraries (libfreetype6, fontconfig)
+- Ruby (full installation)
 - Development tools (vim, less)
 
-### Architecture Details
+### Download Cache
 
-The shared builder architecture consists of:
+The builder image uses `RUN --mount=type=cache` to persist downloaded archives (Apache Ant, SenchaCmd) across builds. Normally this is transparent, but occasionally you may need to force a fresh download — for example, if a cached archive is corrupted.
 
-1. **`builder/Dockerfile`**: Defines the common build environment
-2. **`frontend/Dockerfile.local`**: Uses shared builder + copies frontend source
-3. **`backend/Dockerfile.local`**: Uses shared builder + copies backend source
-4. **Docker Compose**: Orchestrates build dependencies and contexts
-5. **Interactive Builder Profile**: As standlaone service or for live development
+To clear only the download cache without affecting layer caches or image history:
 
-### Docker Compose Build Process Flow
 
 1. **Builder Stage**: Docker Compose automatically builds the shared builder first
 2. **Source Context**: The local source directory of Edirom-Online-Frontend or Edirom-Online-Backend becomes the build context

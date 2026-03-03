@@ -80,14 +80,15 @@ To start the Edirom Online with the EditionExample, create and navigate to a new
 
 Mac/Linux:
 ```bash
-git clone https://github.com/Edirom/Edirom-Online.git . && export EDITION_XAR=https://github.com/Edirom/EditionExample/releases/download/v0.1.1/EditionExample-0.1.1.xar && docker compose up
+git clone https://github.com/Edirom/Edirom-Online.git . && export EDITION_XAR=https://github.com/Edirom/EditionExample/releases/download/v0.1.1/EditionExample-0.1.1.xar && docker compose build builder && docker compose --profile default up
 ```
 
 Windows (enter as single commands):
 ```bash
 git clone https://github.com/Edirom/Edirom-Online.git .
 set EDITION_XAR=https://github.com/Edirom/EditionExample/releases/download/v0.1.1/EditionExample-0.1.1.xar
-docker compose up
+docker compose build builder
+docker compose --profile default up
 ```
 
 #### Step-by-step installation
