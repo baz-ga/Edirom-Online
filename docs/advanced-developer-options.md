@@ -300,34 +300,8 @@ As the XAR artefact of the Edirom-Online-Backend needs to be deployed to eXist-d
 3. Select “Package Manager“ from the menu on the left side
 4. Upload the XAR from your filesystem
 
-**Method 2: Copy XAR to Autodeploy Directory + Container Restart**
 
-> [!IMPORTANT]
-> eXist-db only processes the autodeploy directory when it starts up, so you need to restart the container after copying the XAR
-
-//TODO following doesn’t work from interactive builder but from native terminal
-```bash
-# After having made your changes to the source code
-# In your native terminal, switch to the mounted backend directory ($BE_LOCAL_SOURCE)
-cd "$BE_LOCAL_SOURCE"
-
-# List contents of build-xar directory to select the correct build
-ls build-xar
-
-# Optional: Find the name of your backend container for the subsequent command
-docker ps | grep eXist-db-local
-
-# Copy the built XAR to the eXist-db autodeploy directory
-docker cp edirom-builder:/opt/eo-backend/build-xar/[your-xar-file].xar eXist-db-local:/opt/exist/autodeploy/
-
-# Restart eXist-db to process the new XAR
-docker compose restart edirom-online-backend-local-source
-
-# Monitor eXist-db logs to see deployment
-docker compose logs -f edirom-online-backend-local-source
-```
-
-**Method 3: REST API Deployment**
+**Method 2: REST API Deployment**
 
 Deploy directly via eXist-db’s REST API. 
 
