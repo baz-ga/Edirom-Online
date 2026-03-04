@@ -11,7 +11,6 @@
 
 </div>
 
-
 <div align="center">
 
 **[About](#about-edirom-online) •
