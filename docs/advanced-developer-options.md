@@ -142,7 +142,7 @@ After rebuilding your modified frontend the changes will be reflected in your ru
 
 ### Example Full Stack Development Workflow
 
-The profiles for local backend and fromtend development can also be combined for full stack developemt purposes. This is especially useful when adding completely new features to Edirom Online that require handling data and new GUI components.
+The profiles for local backend and frontend development can also be combined for full stack development purposes. This is especially useful when adding completely new features to Edirom Online that require handling data and new GUI components.
 
 ```bash
 # Clone all three repositories
