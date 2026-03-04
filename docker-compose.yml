@@ -62,8 +62,6 @@ services:
     build:
       context: ./builder
       dockerfile: Dockerfile
-      cache_from:
-        - edirom-online-edirom-builder:latest
     image: edirom-online-edirom-builder:latest
 
   # Local backend source development configuration - use with --profile local-backend-source
