@@ -147,10 +147,16 @@ You can rebuild in any way you want, whether natively on your host or by rebuild
 > [!TIP]
 >After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend-source** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **edirom-online-frontend-local-source** service.
 
-### Example Full Stack Development Workflow
+### Profile for Full Stack Development
 
-The profiles for local backend and frontend development can also be combined for full stack development purposes. This is especially useful when adding completely new features to Edirom Online that require handling data and new GUI components.
+The _local-fullstack_ profile facilitates combined development of both frontend and backend. This is especially useful when adding completely new features to Edirom Online that require handling data and GUI components.
 
+> [!NOTE]
+>
+> **Profile Benefits**
+>   Combines the benefits of both, _local-backend-source_ and _local-frontend-source_ profiles.
+
+**Example Fullstack Development Workflow**
 ```bash
 # Clone all three repositories
 git clone https://github.com/Edirom/Edirom-Online.git ~/projects/Edirom-Online
@@ -167,7 +173,7 @@ export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 docker compose build builder
 
 # Start both local development services
-docker compose --profile local-frontend-source --profile local-backend-source up --build
+docker compose --profile local-fullstack up -d --build
 ```
 
 > [!TIP]
