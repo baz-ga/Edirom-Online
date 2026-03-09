@@ -282,11 +282,8 @@ sencha app build testing && ant inject-properties
 If you prefer a clean rebuild or encounter caching issues:
 
 ```bash
-# Rebuild the frontend container with your changes
-docker compose --profile local-frontend-source build edirom-online-frontend-local-source
-
-# Restart the frontend service
-docker compose restart edirom-online-frontend-local-source
+# Rebuild the image and recreate the frontend container
+docker compose --profile local-frontend-source up -d --build edirom-online-frontend-local-source
 ```
 
 #### Deploying Backend Changes
