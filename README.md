@@ -142,7 +142,7 @@ You can also check the current docker compose configuration, and see the effect 
 docker compose config
 ```
 
-For more advanced developer options including local development with Docker Compose profiles (such as `local-frontend-source` and `local-backend-source`), see [Advanced developer options].
+For more advanced developer options including local development with Docker Compose profiles (such as `local-frontend` and `local-backend`), see [Advanced developer options].
 
 **Step 3 (optional)**: Specify an edition.
 

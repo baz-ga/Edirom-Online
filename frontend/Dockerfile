@@ -11,7 +11,7 @@
 #########################
 
 # Use shared builder image
-FROM edirom-online-edirom-builder:latest AS eo-builder
+FROM edirom-online-builder:latest AS eo-builder
 
 ARG SOURCE=https://github.com/Edirom/Edirom-Online-Frontend.git
 ARG BRANCH=v1.3.0

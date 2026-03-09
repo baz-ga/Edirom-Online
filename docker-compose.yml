@@ -2,9 +2,9 @@
 #
 # Usage:
 #   Default (remote sources): docker compose --profile default up
-#   Local backend development: export BE_LOCAL_SOURCE=/path/to/backend && docker compose --profile local-backend-source up
+#   Local backend development: export BE_LOCAL_SOURCE=/path/to/backend && docker compose --profile local-backend up
 #     (starts: local backend + regular frontend)
-#   Local frontend development: export FE_LOCAL_SOURCE=/path/to/frontend && docker compose --profile local-frontend-source up
+#   Local frontend development: export FE_LOCAL_SOURCE=/path/to/frontend && docker compose --profile local-frontend up
 #     (starts: regular backend + local frontend)
 #   Both local: export BE_LOCAL_SOURCE=/path && export FE_LOCAL_SOURCE=/path && docker compose --profile local-fullstack up
 #
@@ -20,16 +20,16 @@ services:
         BRANCH: ${BE_BRANCH:-v1.3.0}
         EDITION: ${EDITION_XAR}
     # Note: depends_on only controls runtime startup order, not build-time dependencies.
-    # Builder image must be built explicitly first: docker compose build builder
+    # Builder image must be built explicitly first: docker compose build edirom-online-builder
     # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
     # depends_on:
-    #  - builder
+    #  - edirom-online-builder
     ports:
       # expose eXist-db
       - "${BE_PORT:-8080}:8080"
     profiles:
       - default
-      - local-frontend-source
+      - local-frontend
 
   edirom-online-frontend:
     container_name: nginx
@@ -44,29 +44,29 @@ services:
         BE_PORT: ${BE_PORT:-8080}
         SENCHA_BUILD_ENV: ${SENCHA_BUILD_ENV:-production}
     # Note: depends_on only controls runtime startup order, not build-time dependencies.
-    # Builder image must be built explicitly first: docker compose build builder
+    # Builder image must be built explicitly first: docker compose build edirom-online-builder
     # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
     # depends_on:
-    #  - builder
+    #  - edirom-online-builder
     ports:
       # expose nginx
       - "${FE_PORT:-8089}:80"
     profiles:
       - default
-      - local-backend-source
+      - local-backend
 
   # Shared builder service - to be built before compose up
-  builder:
+  edirom-online-builder:
     build:
       context: ./builder
       dockerfile: Dockerfile
-    image: edirom-online-edirom-builder:latest
+    image: edirom-online-builder:latest
 
-  # Local backend source development configuration - use with --profile local-backend-source
-  # Note: Use local-dev-builder profile for interactive development with persistent build environment
-  edirom-online-backend-local-source:
+  # Local backend source development configuration - use with --profile local-backend
+  # Note: Use interactive-builder profile for interactive development with persistent build environment
+  local-edirom-online-backend:
     extends: edirom-online-backend
-    container_name: eXist-db-local
+    container_name: local-eXist-db
     build:
       context: ${BE_LOCAL_SOURCE}
       dockerfile: ${PWD}/backend/Dockerfile.local
@@ -76,41 +76,41 @@ services:
         BRANCH: ${BE_BRANCH:-develop}
         EDITION: ${EDITION_XAR}
     # Note: depends_on only controls runtime startup order, not build-time dependencies.
-    # Builder image must be built explicitly first: docker compose build builder
+    # Builder image must be built explicitly first: docker compose build edirom-online-builder
     # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
     # depends_on:
-    #  - builder
+    #  - edirom-online-builder
     profiles:
-      - local-backend-source
+      - local-backend
       - local-fullstack
     volumes:
       # Mount local clone of Edirom-Online-Backend for development
-      # Usage: export BE_LOCAL_SOURCE=/path/to/local/backend && docker compose --profile local-backend-source up
+      # Usage: export BE_LOCAL_SOURCE=/path/to/local/backend && docker compose --profile local-backend up
       - type: bind
         source: ${BE_LOCAL_SOURCE}
         target: /opt/eo-backend
         bind:
           create_host_path: true
 
-  # Local frontend source development configuration - use with --profile local-frontend-source
-  # Note: Use local-dev-builder profile for interactive development with persistent build environment
-  edirom-online-frontend-local-source:
+  # Local frontend source development configuration - use with --profile local-frontend
+  # Note: Use interactive-builder profile for interactive development with persistent build environment
+  local-edirom-online-frontend:
     extends: edirom-online-frontend
-    container_name: nginx-local
+    container_name: local-nginx
     build:
       context: ${FE_LOCAL_SOURCE}
       dockerfile: ${PWD}/frontend/Dockerfile.local
     # Note: depends_on only controls runtime startup order, not build-time dependencies.
-    # Builder image must be built explicitly first: docker compose build builder
+    # Builder image must be built explicitly first: docker compose build edirom-online-builder
     # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
     # depends_on:
-    #  - builder
+    #  - edirom-online-builder
     profiles:
-      - local-frontend-source
+      - local-frontend
       - local-fullstack
     volumes:
       # Mount local clone of Edirom-Online-Frontend for development
-      # Usage: export FE_LOCAL_SOURCE=/path/to/local/frontend && docker compose --profile local-frontend-source up
+      # Usage: export FE_LOCAL_SOURCE=/path/to/local/frontend && docker compose --profile local-frontend up
       - type: bind
         source: ${FE_LOCAL_SOURCE}
         target: /opt/eo-frontend
@@ -125,16 +125,16 @@ services:
           create_host_path: true
 
 
-  # Interactive builder service for local development - use with --profile local-dev-builder
-  edirom-builder:
-    extends: builder
-    container_name: edirom-builder
+  # Interactive builder service for local development - use with --profile interactive-builder
+  interactive-edirom-online-builder:
+    extends: edirom-online-builder
+    container_name: interactive-edirom-online-builder
     stdin_open: true
     tty: true
     command: /bin/bash
     volumes:
       # Mount local clone of Edirom-Online-Frontend for development
-      # Usage: export FE_LOCAL_SOURCE=/path/to/local/frontend && export BE_LOCAL_SOURCE=/path/to/local/backend && docker compose --profile local-dev-builder up -d edirom-builder
+      # Usage: export FE_LOCAL_SOURCE=/path/to/local/frontend && export BE_LOCAL_SOURCE=/path/to/local/backend && docker compose --profile interactive-builder up -d interactive-edirom-online-builder
       - type: bind
         source: ${FE_LOCAL_SOURCE}
         target: /opt/eo-frontend
@@ -150,4 +150,4 @@ services:
     environment:
       - BE_PORT=${BE_PORT:-8080}
     profiles:
-      - local-dev-builder
+      - interactive-builder

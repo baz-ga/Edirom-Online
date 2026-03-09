@@ -1,6 +1,6 @@
 # eo — Edirom Online Task Runner
 
-The `eo` script is available inside the `edirom-builder` container at `/usr/local/bin/eo`. It is a task runner for common build and deploy operations during local development.
+The `eo` script is available inside the `interactive-edirom-online-builder` container at `/usr/local/bin/eo`. It is a task runner for common build and deploy operations during local development.
 
 ## Usage
 
