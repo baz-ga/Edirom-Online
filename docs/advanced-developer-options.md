@@ -28,21 +28,21 @@ Aside from the standard `docker compose --profile default up` command, which run
 
 The Docker Compose configuration uses profiles to ensure mutual exclusivity between regular and local development services. This prevents port conflicts and ensures only the intended services are running.
 
-| Command | Backend Service | Frontend Service |
-|---------|----------------|------------------|
-| `docker compose --profile default up` | Regular (from remote repo) | Regular (from remote repo) |
-| `docker compose --profile local-backend-source up` | **Local** (from `BE_LOCAL_SOURCE`) | Regular (from remote repo) |
-| `docker compose --profile local-frontend-source up` | Regular (from remote repo) | **Local** (from `FE_LOCAL_SOURCE`) |
-| `docker compose --profile local-backend-source --profile local-frontend-source up` | **Local** (from `BE_LOCAL_SOURCE`) | **Local** (from `FE_LOCAL_SOURCE`) |
+| Command | Backend Service | Frontend Service | Also start [Interactive Builder](#interactive-builder-profile) |
+|---------|----------------|------------------|---|
+| `docker compose --profile default up` | Regular (from remote repo) | Regular (from remote repo) | — |
+| `docker compose --profile local-backend-source up` | **Local** (from `BE_LOCAL_SOURCE`) | Regular (from remote repo) | add `--profile local-dev-builder` |
+| `docker compose --profile local-frontend-source up` | Regular (from remote repo) | **Local** (from `FE_LOCAL_SOURCE`) | add `--profile local-dev-builder` |
+| `docker compose --profile local-fullstack up` | **Local** (from `BE_LOCAL_SOURCE`) | **Local** (from `FE_LOCAL_SOURCE`) | add `--profile local-dev-builder` |
+
 
 **Key Features:**
-- **Automatic pairing**: Each local profile automatically includes the regular version of the other service
+- **Automatic pairing**: The profiles control which services to start, those based on local sourcec code or the regular services
 - **No conflicts**: Regular and local versions of the same service never run simultaneously
-- **Port safety**: Prevents port binding conflicts between services
-- **Intuitive workflow**: Simply specify which component you're developing locally, the complement service starts automatically
+- **Port safety**: Prevent port binding conflicts between services
 
 > [!TIP]
-> Combine with the [Shared Builder Architecture](#shared-builder-architecture)’s `local-dev-builder` to interactively build and deploy changes without restarting the Docker Compose setup.
+> Combine with the [Shared Builder Architecture](#shared-builder-architecture)’s `local-dev-builder` which allows to interactively build and deploy changes without restarting the Docker Compose setup.
 
 ### Default Profile
 
