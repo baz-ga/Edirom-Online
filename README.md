@@ -90,9 +90,6 @@ docker compose build builder
 docker compose --profile default up
 ```
 
-> [!NOTE]
-> For quickly running just the default services this is absolutely fine. It will build all services, though, even those not needed for the default profile. For furher information on how to change this behaviour see [Advanced Developer Options: Avoid Building Inactive Profiles](docs/advanced-developer-options.md#avoid-building-inactive-profiles).
-
 #### Step-by-step installation
 
 **Step 1**: Clone the Git repository.
