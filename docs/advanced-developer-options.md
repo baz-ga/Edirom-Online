@@ -277,7 +277,7 @@ sencha app build testing && ant inject-properties
 # No deployment or container rebuild needed – just refresh your browser!
 ```
 
-**Alternative: Container Rebuild (if needed)**
+_Alternative: Container Rebuild (if needed)_
 
 If you prefer a clean rebuild or encounter caching issues:
 
@@ -296,7 +296,7 @@ As the build directory is from your host system, you can, of course, just use yo
 > [!IMPORTANT]
 > The actual value for the backend port and credentials in the following examples might be different  in your setup; please adjust them accordingly.
 
-**Method 1: eXist-db Dashboard (Web Interface)**
+_Method 1: eXist-db Dashboard (Web Interface)_
 
 On your host system:
 
@@ -310,7 +310,7 @@ On your host system:
 
 > [!IMPORTANT] if you have the impression that your changes did not get deployed you might try uninstalling Edirom Online Backend before reinstalling.
 
-**Method 2: REST API Deployment**
+_Method 2: Container Rebuild (Clean Deployment)_
 
 For a complete fresh deployment you might want to recreate the service:
 
