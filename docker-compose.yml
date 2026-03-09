@@ -6,9 +6,7 @@
 #     (starts: local backend + regular frontend)
 #   Local frontend development: export FE_LOCAL_SOURCE=/path/to/frontend && docker compose --profile local-frontend-source up
 #     (starts: regular backend + local frontend)
-#   Both local: export BE_LOCAL_SOURCE=/path && export FE_LOCAL_SOURCE=/path && \
-#               docker compose --profile local-backend-source --profile local-frontend-source up -d --no-deps edirom-online-backend-local-source edirom-online-frontend-local-source
-#     (--no-deps required: both profiles together would otherwise also start the regular backend and frontend, causing port conflicts)
+#   Both local: export BE_LOCAL_SOURCE=/path && export FE_LOCAL_SOURCE=/path && docker compose --profile local-fullstack up
 #
 services:
   edirom-online-backend:
@@ -81,6 +79,7 @@ services:
       - builder
     profiles:
       - local-backend-source
+      - local-fullstack
     volumes:
       # Mount local clone of Edirom-Online-Backend for development
       # Usage: export BE_LOCAL_SOURCE=/path/to/local/backend && docker compose --profile local-backend-source up
@@ -102,6 +101,7 @@ services:
       - builder
     profiles:
       - local-frontend-source
+      - local-fullstack
     volumes:
       # Mount local clone of Edirom-Online-Frontend for development
       # Usage: export FE_LOCAL_SOURCE=/path/to/local/frontend && docker compose --profile local-frontend-source up
