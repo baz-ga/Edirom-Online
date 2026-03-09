@@ -145,6 +145,7 @@ You can also check the current docker compose configuration, and see the effect 
 docker compose config
 ```
 
+For more advanced developer options including local development with Docker Compose profiles (such as `local-frontend-source` and `local-backend-source`), see [Advanced developer options].
 
 **Step 3 (optional)**: Specify an edition.
 
@@ -267,6 +268,8 @@ Some useful information regarding documentation is captured in the [docs] folder
 * [Release Workflow] for the Edirom Online
 * [Manual setup] on a local machine
 * [Data creation workflow] for the Edirom Online
+* [MEI Taxonomies Support] in Edirom Online
+* [Advanced developer options] for profiles and local development
 
 
 ## Dependencies
@@ -350,6 +353,8 @@ Edirom Online is released to the public under the terms of the [GNU GPL v.3] ope
 [Release Workflow]: docs/release-workflow.md
 [Manual setup]: docs/setup.md
 [Data creation workflow]: docs/data-creation-workflow.md
+[MEI Taxonomies Support]: docs/mei-taxonomies-support.md
+[Advanced developer options]: docs/advanced-developer-options.md
 [Ext JS]: https://www.sencha.com/products/extjs
 [Raphaël]: http://raphaeljs.com
 [ACE]: http://ace.ajax.org
