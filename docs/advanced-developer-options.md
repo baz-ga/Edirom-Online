@@ -112,7 +112,9 @@ The `local-frontend-source` profile facilitates local development of the Edirom-
 >
 > 3. **Source Code Mounting**:
 >
->    The Docker Compose setup will mount your local backend source code to `/opt/eo-backend` in the container; this is especially useful in combination with the [Interactive Builder Profile](#interactive-builder-profile).
+>    The Docker Compose setup will mount the `$FE_LOCAL_SOURCE/build` directory of your local frontend clone to `/usr/share/nginx/html/` in the container for live frontend serving; i.e., rebuilds of the frontend will be served directly, without rebuilding the service.
+>
+>    Moreover, your local source code will be mounted in the [Interactive Builder Profile](#interactive-builder-profile) that offers the shared builder as a service.
 
 Prerequisites:
 * Acquire a local clone of [Edirom Online](https://github.com/Edirom/Edirom-Online.git)
@@ -142,7 +144,8 @@ docker compose --profile local-frontend-source up --build
 
 You can rebuild in any way you want, whether natively on your host or by rebuilding the frontend service, for example, using the [Interactive Builder Profile](#interactive-builder-profile).
 
-After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend-source** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **edirom-online-frontend-local-source** service.
+> [!TIP]
+>After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend-source** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **edirom-online-frontend-local-source** service.
 
 ### Example Full Stack Development Workflow
 
