@@ -181,7 +181,7 @@ docker compose --profile local-fullstack up -d --build
 
 ## Shared Builder Architecture
 
-Edirom Online offers a shared builder architecture to optimise build times and minimise duplication in the Docker build process. Both the frontend and backend Dockerfiles use it for building; i.e., it serves as the _shared_ base for all builds in the Docker Compose setup. The shared builder is defined in **`builder/Dockerfile`**. Moreover it is used as basis for the [Interactive Builder Profile](#interactive-builder-profile) in the edirom-builder service.
+Edirom Online defines a shared builder architecture to optimise build times and minimise duplication in the Docker build process. Both the frontend and backend Dockerfiles use it in ther first stages for building; i.e., it serves as the _shared_ base for all builds in the Docker Compose setup. The shared builder is defined in **`builder/Dockerfile`**. Moreover it is used as basis for the [Interactive Builder Profile](#interactive-builder-profile) in the _edirom-builder_ service.
 
 The shared builder provides a build environment containing:
 
@@ -248,22 +248,15 @@ docker compose exec edirom-builder bash
 export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
-# 2. Build all three services
-docker compose --profile local-frontend-source --profile local-backend-source --profile local-dev-builder build
+# 2. Build all services
+docker compose --profile local-fullstack --profile local-dev-builder build
 
-# 3. Start ONLY local development services in detached mode (avoids conflicts with regular services)
-docker compose --profile local-frontend-source --profile local-backend-source --profile local-dev-builder up -d --no-deps edirom-online-frontend-local-source edirom-online-backend-local-source edirom-builder
+# 3. Start local development services and interactive builder in detached mode
+docker compose --profile local-fullstack --profile local-dev-builder up -d
 
-docker compose --profile local-dev-builder up -d edirom-builder
 # 4. Enter edirom-builder interactive shell
-
 docker compose exec edirom-builder bash
 ```
-
-> [!TIP] Fast-lane
-> ```bash
-> docker compose --profile local-frontend-source --profile local-backend-source --profile local-dev-builder up -d --build
->```
 
 #### Deploying Frontend Changes
 
