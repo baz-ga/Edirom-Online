@@ -50,6 +50,10 @@ RUN --mount=type=cache,target=/var/cache/downloads \
 # Put ant and sencha in the path
 ENV PATH="/opt/ant/bin:/opt/Sencha/Cmd:${PATH}"
 
+# Install eo task runner (available as 'eo' anywhere in the container)
+COPY eo /usr/local/bin/eo
+RUN chmod +x /usr/local/bin/eo
+
 # Set working directory where source will be mounted
 WORKDIR /opt/eo-frontend
 
