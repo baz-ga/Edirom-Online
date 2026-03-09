@@ -64,7 +64,7 @@ The `local-backend-source` profile facilitates local development of the Edirom-O
 >
 >    Your local source code will be mounted in the [Interactive Builder Profile](#interactive-builder-profile) that offers the shared builder as a service.
 
-**Prerequisites**
+_Prerequisites_
 * Acquire a local clone of [Edirom Online](https://github.com/Edirom/Edirom-Online.git)
 * Acquire a local clone of [Edirom-Online-Backend](https://github.com/Edirom/Edirom-Online-Backend.git)
 
@@ -110,13 +110,13 @@ The `local-frontend-source` profile facilitates local development of the Edirom-
 >
 >    When rebuilding the Edirom-Online-Frontend, changes to your local source code will be reflected in the running application.
 >
-> 3. **Source Code Mounting**:
+> 3. **Source Code Mounting**
 >
 >    The Docker Compose setup will mount the `$FE_LOCAL_SOURCE/build` directory of your local frontend clone to `/usr/share/nginx/html/` in the container for live frontend serving; i.e., rebuilds of the frontend will be served directly, without rebuilding the service.
 >
 >    Moreover, your local source code will be mounted in the [Interactive Builder Profile](#interactive-builder-profile) that offers the shared builder as a service.
 
-Prerequisites:
+_Prerequisites_
 * Acquire a local clone of [Edirom Online](https://github.com/Edirom/Edirom-Online.git)
 * Acquire a local clone of [Edirom-Online-Frontend](https://github.com/Edirom/Edirom-Online-Frontend.git)
 
@@ -151,7 +151,7 @@ You can rebuild in any way you want, whether natively on your host or by rebuild
 
 The _local-fullstack_ profile facilitates combined development of both frontend and backend. This is especially useful when adding completely new features to Edirom Online that require handling data and GUI components.
 
-> [!NOTE]
+> [!IMPORTANT]
 >
 > **Profile Benefits**
 >   Combines the benefits of both, _local-backend-source_ and _local-frontend-source_ profiles.
