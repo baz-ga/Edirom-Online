@@ -308,6 +308,7 @@ On your host system:
 3. Select **Package Manager** from the left menu
 4. Upload the XAR from your filesystem
 
+> [!IMPORTANT] if you have the impression that your changes did not get deployed you might try uninstalling Edirom Online Backend before reinstalling.
 
 **Method 2: REST API Deployment**
 
