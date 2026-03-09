@@ -15,7 +15,7 @@ docker buildx version
 
 The builder image uses BuildKit cache mounts to persist downloads across builds. See [Download Cache](#download-cache) for details on managing this cache, or [Build Failures: BuildKit Not Available](#build-failures-buildkit-not-available) if you encounter related build errors.
 
-## Docker Compose Profiles for Local Backend and Frontend Development
+## Docker Compose Profiles
 
 Aside from the standard `docker compose --profile default up` command, which runs Edirom Online as described in the [README](../README.md), Edirom Online supports Docker Compose profiles for development scenarios with local source code.
 
@@ -43,6 +43,10 @@ The Docker Compose configuration uses profiles to ensure mutual exclusivity betw
 
 > [!TIP]
 > Combine with the [Shared Builder Architecture](#shared-builder-architecture)’s `local-dev-builder` to interactively build and deploy changes without restarting the Docker Compose setup.
+
+### Default Profile
+
+The `default`profile starts regular services based on the specified remote repositories and GitHub references. For more details please consult the [README](../README.md).
 
 ### Profile for Local Backend Development
 
