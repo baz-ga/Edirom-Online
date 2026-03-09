@@ -26,8 +26,9 @@ WORKDIR /opt/eo-backend
 # Copy source code from build context (BE_LOCAL_SOURCE)
 COPY . .
 
-# Build the local source
+# Build the local source (clean build-xar first to avoid stale XARs in autodeploy)
 RUN echo "Building Backend XAR from local source..." && \
+    rm -f build-xar/*.xar && \
     ant
 
 # Download edition XAR if specified
