@@ -75,8 +75,11 @@ services:
       args:
         BRANCH: ${BE_BRANCH:-develop}
         EDITION: ${EDITION_XAR}
-    depends_on:
-      - builder
+    # Note: depends_on only controls runtime startup order, not build-time dependencies.
+    # Builder image must be built explicitly first: docker compose build builder
+    # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
+    # depends_on:
+    #  - builder
     profiles:
       - local-backend-source
       - local-fullstack
@@ -97,8 +100,11 @@ services:
     build:
       context: ${FE_LOCAL_SOURCE}
       dockerfile: ${PWD}/frontend/Dockerfile.local
-    depends_on:
-      - builder
+    # Note: depends_on only controls runtime startup order, not build-time dependencies.
+    # Builder image must be built explicitly first: docker compose build builder
+    # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
+    # depends_on:
+    #  - builder
     profiles:
       - local-frontend-source
       - local-fullstack
