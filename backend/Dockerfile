@@ -10,7 +10,7 @@
 # 1. Build Environment
 #########################
 
-FROM edirom-online-edirom-builder:latest AS eo-builder
+FROM edirom-online-builder:latest AS eo-builder
 
 ARG SOURCE=https://github.com/Edirom/Edirom-Online-Backend.git
 ARG BRANCH=v1.4.0

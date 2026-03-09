@@ -31,9 +31,9 @@ The Docker Compose configuration uses profiles to ensure mutual exclusivity betw
 | Command | Backend Service | Frontend Service | Also start [Interactive Builder](#interactive-builder-profile) |
 |---------|----------------|------------------|---|
 | `docker compose --profile default up` | Regular (from remote repo) | Regular (from remote repo) | — |
-| `docker compose --profile local-backend-source up` | **Local** (from `BE_LOCAL_SOURCE`) | Regular (from remote repo) | add `--profile local-dev-builder` |
-| `docker compose --profile local-frontend-source up` | Regular (from remote repo) | **Local** (from `FE_LOCAL_SOURCE`) | add `--profile local-dev-builder` |
-| `docker compose --profile local-fullstack up` | **Local** (from `BE_LOCAL_SOURCE`) | **Local** (from `FE_LOCAL_SOURCE`) | add `--profile local-dev-builder` |
+| `docker compose --profile local-backend up` | **Local** (from `BE_LOCAL_SOURCE`) | Regular (from remote repo) | add `--profile interactive-builder` |
+| `docker compose --profile local-frontend up` | Regular (from remote repo) | **Local** (from `FE_LOCAL_SOURCE`) | add `--profile interactive-builder` |
+| `docker compose --profile local-fullstack up` | **Local** (from `BE_LOCAL_SOURCE`) | **Local** (from `FE_LOCAL_SOURCE`) | add `--profile interactive-builder` |
 
 
 **Key Features:**
@@ -42,7 +42,7 @@ The Docker Compose configuration uses profiles to ensure mutual exclusivity betw
 - **Port safety**: Prevent port binding conflicts between services
 
 > [!TIP]
-> Combine with the [Shared Builder Architecture](#shared-builder-architecture)’s `local-dev-builder` which allows to interactively build and deploy changes without restarting the Docker Compose setup.
+> Combine with the [Shared Builder Architecture](#shared-builder-architecture)’s `interactive-builder` which allows to interactively build and deploy changes without restarting the Docker Compose setup.
 
 ### Default Profile
 
@@ -50,7 +50,7 @@ The `default`profile starts regular services based on the specified remote repos
 
 ### Profile for Local Backend Development
 
-The `local-backend-source` profile facilitates local development of the Edirom-Online-Backend.
+The `local-backend` profile facilitates local development of the Edirom-Online-Backend.
 
 > [!NOTE]
 >
@@ -83,11 +83,11 @@ cd ~/projects/Edirom-Online
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
 # Build the shared builder (first time only)
-docker compose build builder
+docker compose build edirom-online-builder
 
 # Build and start Edirom Online with local backend
 # This will build the backend from your local source code
-docker compose --profile local-backend-source up --build
+docker compose --profile local-backend up --build
 ```
 
 You can rebuild in any way you want, whether natively on your host or by rebuilding the frontend service, for example, using the [Interactive Builder Profile](#interactive-builder-profile).
@@ -96,7 +96,7 @@ If you have made changes in your local clone of Edirom-Online-Backend and want t
 
 ### Profile for Local Frontend Development
 
-The `local-frontend-source` profile facilitates local development of the Edirom-Online-Backend.
+The `local-frontend` profile facilitates local development of the Edirom-Online-Frontend.
 
 > [!NOTE]
 >
@@ -135,17 +135,17 @@ cd ~/projects/Edirom-Online
 export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 
 # Build the shared builder (first time only)
-docker compose build builder
+docker compose build edirom-online-builder
 
 # Build and start Edirom Online with local frontend
 # This will build the frontend from your local source code
-docker compose --profile local-frontend-source up --build
+docker compose --profile local-frontend up --build
 ```
 
 You can rebuild in any way you want, whether natively on your host or by rebuilding the frontend service, for example, using the [Interactive Builder Profile](#interactive-builder-profile).
 
 > [!TIP]
->After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend-source** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **edirom-online-frontend-local-source** service.
+>After rebuilding your modified frontend the changes will be reflected in your running Edirom Online because the **local-frontend** profile has the build directory mounted to `/usr/share/nginx/html/` of the running **local-edirom-online-frontend** service.
 
 ### Profile for Full Stack Development
 
@@ -154,7 +154,7 @@ The _local-fullstack_ profile facilitates combined development of both frontend 
 > [!IMPORTANT]
 >
 > **Profile Benefits**
->   Combines the benefits of both, _local-backend-source_ and _local-frontend-source_ profiles.
+>   Combines the benefits of both, _local-backend_ and _local-frontend_ profiles.
 
 _Prerequisites_
 * Acquire a local clone of [Edirom Online](https://github.com/Edirom/Edirom-Online.git)
@@ -175,7 +175,7 @@ export FE_LOCAL_SOURCE=~/projects/Edirom-Online-Frontend
 export BE_LOCAL_SOURCE=~/projects/Edirom-Online-Backend
 
 # Build the shared builder (first time only)
-docker compose build builder
+docker compose build edirom-online-builder
 
 # Start both local development services
 docker compose --profile local-fullstack up -d --build
@@ -186,7 +186,7 @@ docker compose --profile local-fullstack up -d --build
 
 ## Shared Builder Architecture
 
-Edirom Online defines a shared builder architecture to optimise build times and minimise duplication in the Docker build process. Both the frontend and backend Dockerfiles use it in ther first stages for building; i.e., it serves as the _shared_ base for all builds in the Docker Compose setup. The shared builder is defined in **`builder/Dockerfile`**. Moreover it is used as basis for the [Interactive Builder Profile](#interactive-builder-profile) in the _edirom-builder_ service.
+Edirom Online defines a shared builder architecture to optimise build times and minimise duplication in the Docker build process. Both the frontend and backend Dockerfiles use it in ther first stages for building; i.e., it serves as the _shared_ base for all builds in the Docker Compose setup. The shared builder is defined in **`builder/Dockerfile`**. Moreover it is used as basis for the [Interactive Builder Profile](#interactive-builder-profile) in the _interactive-edirom-online-builder_ service.
 
 The shared builder provides a build environment containing:
 
@@ -221,7 +221,7 @@ docker buildx du --verbose
 
 ### Interactive Builder Profile
 
-The `local-dev-builder` profile facilitates interactive development with a persistent build environment. Because the builder mounts the local source code of Edirom-Online-Backend and Edirom-Online-Frontend to `/opt/eo-backend` and `/opt/eo-frontend` respectively, you can use it standalone to build your local clones of Edirom-Online-Backend and Edirom-Online-Frontend. The builder will create the build artifacts in the respective directories on your host system.
+The `interactive-builder` profile facilitates interactive development with a persistent build environment. Because the builder mounts the local source code of Edirom-Online-Backend and Edirom-Online-Frontend to `/opt/eo-backend` and `/opt/eo-frontend` respectively, you can use it standalone to build your local clones of Edirom-Online-Backend and Edirom-Online-Frontend. The builder will create the build artifacts in the respective directories on your host system.
 
 > [!NOTE]
 > Running the interactive builder profile standalone is helpful if you want to make changes to the build processes. For frontend and backend development, we recommend [Combined Usage with Local Development Profiles](combined-usage-with-local-development-profiles).
@@ -232,10 +232,10 @@ export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
 # Start the persistent interactive builder
-docker compose --profile local-dev-builder up -d edirom-builder
+docker compose --profile interactive-builder up -d interactive-edirom-online-builder
 
 # Access the interactive shell
-docker compose exec edirom-builder bash
+docker compose exec interactive-edirom-online-builder bash
 ```
 
 **Inside the interactive builder container:**
@@ -254,13 +254,13 @@ export FE_LOCAL_SOURCE=/path/to/your/frontend
 export BE_LOCAL_SOURCE=/path/to/your/backend
 
 # 2. Build all services
-docker compose --profile local-fullstack --profile local-dev-builder build
+docker compose --profile local-fullstack --profile interactive-builder build
 
 # 3. Start local development services and interactive builder in detached mode
-docker compose --profile local-fullstack --profile local-dev-builder up -d
+docker compose --profile local-fullstack --profile interactive-builder up -d
 
-# 4. Enter edirom-builder interactive shell
-docker compose exec edirom-builder bash
+# 4. Enter interactive builder shell
+docker compose exec interactive-edirom-online-builder bash
 ```
 
 #### Deploying Frontend Changes
@@ -289,7 +289,7 @@ If you prefer a clean rebuild or encounter caching issues:
 
 ```bash
 # Rebuild the image and recreate the frontend container
-docker compose --profile local-frontend-source up -d --build edirom-online-frontend-local-source
+docker compose --profile local-frontend up -d --build local-edirom-online-frontend
 ```
 
 #### Deploying Backend Changes
@@ -322,8 +322,8 @@ For a complete fresh deployment you might want to recreate the service:
 
 ```bash
 # Remove the container and its eXist-db data volume, then rebuild and start fresh
-docker compose rm -sfv edirom-online-backend-local-source && \
-    docker compose --profile local-backend-source up -d --build edirom-online-backend-local-source
+docker compose rm -sfv local-edirom-online-backend && \
+    docker compose --profile local-backend up -d --build local-edirom-online-backend
 ```
 
 > [!NOTE]
