@@ -291,19 +291,24 @@ docker compose restart edirom-online-frontend-local-source
 
 #### Deploying Backend Changes
 
-As the XAR artefact of the Edirom-Online-Backend needs to be deployed to eXist-db, this involves some additional steps. The following provides some options for you to choose your preferred method.
+> [!TIP]
+> Use the interactive builder with it’s included task runner: Method 3, below.
+
+As the build directory is from your host system, you can, of course, just use your proven deploy methods on your host platform, including, deployment via the eXist-db dashoard app or rebuilding and restarting the container.
+
+> [!IMPORTANT]
+> The actual value for the backend port and credentials in the following examples might be different  in your setup; please adjust them accordingly.
 
 **Method 1: eXist-db Dashboard (Web Interface)**
 
-> [!IMPORTANT]
-> The actual value for the backend port and credentials might depend on your environment variables; please adjust them accordingly.
+On your host system:
 
-1. Open the eXist-db Dashboard
-   Navigate to: http://localhost:8080/exist/apps/dashboard
-2. Log in with the administrator account
-    User: admin
-    Password: changeme
-3. Select “Package Manager“ from the menu on the left side
+1. Open the eXist-db Dashboard:
+   - [http://localhost:8080/exist/apps/dashboard](http://localhost:8080/exist/apps/dashboard)
+2. Log in with the administrator account:
+   - User: `admin`
+   - Password: `changeme`
+3. Select **Package Manager** from the left menu
 4. Upload the XAR from your filesystem
 
 
