@@ -311,91 +311,38 @@ On your host system:
 
 **Method 2: REST API Deployment**
 
-Deploy directly via eXist-db’s REST API. 
-
-- Package version must be different from the currently installed version
-- Consult [eXist-db package repository documentation](https://exist-db.org/exist/apps/doc/repo.xml) for complete details
+For a complete fresh deployment you might want to recreate the service:
 
 ```bash
-# After having made your changes to the source code
-# In the interactive builder, switch to the mounted backend directory
-cd /opt/eo-backend
-
-# Optional: clean build-xar directory (avoid problems with wildcard command below)
-rm 
-
-# Build the backend
-ant
-
-# Upload XAR
-# Generic command (using wildcard - see troubleshooting below)
-curl -u admin:changeme -X PUT \
- -H "Content-Type: application/octet-stream" \
-  -T "build-xar/Edirom-Online-Backend-*.xar" \
- "http://eXist-db-local:8080/exist/rest/db/system/repo/Edirom-Online-Backend-*.xar"
-
-# Install XAR (using wildcard - see troubleshooting below)
-curl -u admin:changeme -X POST \
- -H "Content-Type: application/xml" \
-  -d '<query xmlns="http://exist.sourceforge.net/NS/exist">
- <text>repo:install-and-deploy-from-db("/db/system/repo/Edirom-Online-Backend-*.xar")</text>
- </query>' \
- "http://eXist-db-local:8080/exist/rest/db"
- ```
-
-> [!WARNING]
-> The above wildcard command would upload any backend XAR; this can be problematic because the build script of Edirom-Online-Backend keeps XARs from individual builds alongside each other.
-
-**Troubleshooting**
-
-If the above command worked out for you but you don’t see the changes deployed to eXist-db this might have several resaons, e.g.:
-
-1. The above wildcard command uploaded and deployed multiple packages. Try being explicit about the XAR name.
-
-    ```bash
-    # Check available XAR filenames and versions
-    ls -la build-xar/
-
-    # Upload XAR
-    # Modify the above wildcard command to include a specific filename
-    curl -u admin:changeme -X PUT \
-    -H "Content-Type: application/octet-stream" \
-    -T "build-xar/Edirom-Online-Backend-1.0.1-20250924-2320.xar" \
-    "http://eXist-db-local:8080/exist/rest/db/system/repo/Edirom-Online-Backend-1.0.1-20250924-2320.xar"
-
-    # Install XAR
-    # Modified the above wildcard command to include a specific filename
-    curl -u admin:changeme -X POST \
-    -H "Content-Type: application/xml" \
-    -d '<query xmlns="http://exist.sourceforge.net/NS/exist">
-    <text>repo:install-and-deploy-from-db("/db/system/repo/Edirom-Online-Backend-1.0.1-20250924-2320.xar")</text>
-    </query>' \
-    "http://eXist-db-local:8080/exist/rest/db"
-    ```
-
-2. The version of your new package and the the already installed package match. In this case eXist-db will not install the new package. You might want to uninstall the previous version before deploying the new package.
-
-    ```bash
-    curl -u admin:changeme -X POST \
-    -H "Content-Type: application/xml" \
-    -d '<query xmlns="http://exist.sourceforge.net/NS/exist">
-    <text>repo:undeploy("http://www.edirom.de/apps/EdiromOnlineBackend")</text>
-    </query>' \
-    "http://eXist-db-local:8080/exist/rest/db"
-    ```
-
-//TODO test
-**Option 3: Container Rebuild (Clean Deployment)**
-
-For a complete fresh deployment:
-
-```bash
-# Rebuild the backend service with your updated source
-docker compose --profile local-backend-source build edirom-online-backend-local-source
-
-# Restart the backend service
-docker compose restart edirom-online-backend-local-source
+# Remove the container and its eXist-db data volume, then rebuild and start fresh
+docker compose rm -sfv edirom-online-backend-local-source && \
+    docker compose --profile local-backend-source up -d --build edirom-online-backend-local-source
 ```
+
+> [!NOTE]
+> `rm -sfv` (stop, force-remove, remove volumes) is required because eXist-db persists its data in an anonymous Docker volume. Without removing it, the existing eXist-db state is reused and autodeploy does not run for already-installed packages.
+
+
+_Method 3: Interactive Builder (`eo deploy backend`)_
+
+> [!TIP]
+> The `eo` task runner handles building, uploading, and deploying in one command — including automatic version conflict resolution.
+
+From within the interactive builder shell (see [Interactive Builder Profile](#interactive-builder-profile)):
+
+```bash
+# Build backend and deploy in one step
+eo deploy backend --build
+
+# Or deploy the most recently built XAR without rebuilding
+eo deploy backend
+```
+
+Use `--yes` / `-y` to skip the confirmation prompt when a version is already deployed. For the full command reference, see [eo Task Runner](eo-task-runner.md).
+
+
+
+
 
 # Quick Reference
 
