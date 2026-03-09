@@ -156,6 +156,11 @@ The _local-fullstack_ profile facilitates combined development of both frontend 
 > **Profile Benefits**
 >   Combines the benefits of both, _local-backend-source_ and _local-frontend-source_ profiles.
 
+_Prerequisites_
+* Acquire a local clone of [Edirom Online](https://github.com/Edirom/Edirom-Online.git)
+* Acquire a local clone of [Edirom-Online-Backend](https://github.com/Edirom/Edirom-Online-Backend.git)
+* Acquire a local clone of [Edirom-Online-Frontend](https://github.com/Edirom/Edirom-Online-Frontend.git)
+
 **Example Fullstack Development Workflow**
 ```bash
 # Clone all three repositories
