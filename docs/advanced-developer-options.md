@@ -281,6 +281,7 @@ sencha app build testing && ant inject-properties
 # The changes are automatically available since /opt/eo-frontend/build is mounted to nginx
 # No deployment or container rebuild needed – just refresh your browser!
 ```
+<!-- TODO update above code example after https://github.com/Edirom/Edirom-Online-Frontend/pull/105 is merged -->
 
 _Alternative: Container Rebuild (if needed)_
 
