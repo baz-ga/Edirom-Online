@@ -6,6 +6,7 @@ set -e
 
 EXIST_URL="http://local-edirom-online-backend:${BE_PORT:-8080}"
 EXIST_CREDS="admin:changeme"
+VERBOSE=false
 APP_URI="http://www.edirom.de/apps/EdiromOnlineBackend"
 FE_DIR="/opt/eo-frontend"
 BE_DIR="/opt/eo-backend"
@@ -21,6 +22,15 @@ exist_query() {
         "$EXIST_URL/exist/rest/db"
 }
 
+# Like exist_query but suppresses output unless VERBOSE=true
+exist_op() {
+    if $VERBOSE; then
+        exist_query "$1"
+    else
+        exist_query "$1" > /dev/null
+    fi
+}
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
@@ -28,6 +38,7 @@ exist_query() {
 cmd_build_frontend() {
     echo "==> Building frontend (Sencha Cmd)..."
     cd "$FE_DIR" && sencha app build production
+    # TODO build environment parmaeter from .env or variable
 }
 
 cmd_build_backend() {
@@ -46,8 +57,9 @@ cmd_deploy_backend() {
 
     while [ "$#" -gt 0 ]; do
         case "$1" in
-            --build)       do_build=true ;;
-            --yes|-y)      yes=true ;;
+            --build)          do_build=true ;;
+            --yes|-y)         yes=true ;;
+            --verbose|-v)     VERBOSE=true ;;
             *) echo "Unknown option: $1" >&2; cmd_help; exit 1 ;;
         esac
         shift
@@ -81,7 +93,7 @@ cmd_deploy_backend() {
         local deployed_version
         deployed_version=$(exist_query \
             "let \$pkg := collection('/db/system/repo')//package[@name='$APP_URI']/@version return string(\$pkg)" \
-            2>/dev/null | grep -o '[0-9][^<]*' | head -1 || echo "unknown")
+            2>/dev/null | sed -n 's/.*<exist:value[^>]*>\([^<]*\)<.*/\1/p' || echo "unknown")
 
         echo "Currently deployed: $APP_URI (version: $deployed_version)"
         echo "XAR to install:     $XAR_NAME (version: $XAR_VERSION)"
@@ -102,21 +114,28 @@ cmd_deploy_backend() {
         fi
 
         echo "==> Undeploying $APP_URI..."
-        exist_query "repo:undeploy('$APP_URI')" > /dev/null
+        exist_op "repo:undeploy('$APP_URI')"
         echo "==> Removing $APP_URI from repository..."
-        exist_query "repo:remove('$APP_URI')" > /dev/null
+        exist_op "repo:remove('$APP_URI')"
     else
         echo "No existing deployment found — installing fresh."
     fi
 
     echo "==> Uploading $XAR_NAME..."
-    curl -s -u "$EXIST_CREDS" -X PUT \
-        -H "Content-Type: application/octet-stream" \
-        -T "$XAR" \
-        "$EXIST_URL/exist/rest/db/system/repo/$XAR_NAME" > /dev/null
+    if $VERBOSE; then
+        curl -s -u "$EXIST_CREDS" -X PUT \
+            -H "Content-Type: application/octet-stream" \
+            -T "$XAR" \
+            "$EXIST_URL/exist/rest/db/system/repo/$XAR_NAME"
+    else
+        curl -s -u "$EXIST_CREDS" -X PUT \
+            -H "Content-Type: application/octet-stream" \
+            -T "$XAR" \
+            "$EXIST_URL/exist/rest/db/system/repo/$XAR_NAME" > /dev/null
+    fi
 
     echo "==> Installing and deploying..."
-    exist_query "repo:install-and-deploy-from-db('/db/system/repo/$XAR_NAME')" > /dev/null
+    exist_op "repo:install-and-deploy-from-db('/db/system/repo/$XAR_NAME')"
 
     echo "Done: $APP_URI ($XAR_VERSION) deployed."
 }
@@ -145,6 +164,7 @@ Commands:
   deploy backend            Deploy the latest backend XAR to eXist-db
     --build                 Run 'eo build backend' before deploying
     --yes, -y               Skip confirmation prompt when already deployed
+    --verbose, -v           Show eXist-db responses for each operation
 
   logs                      Show how to access container logs from the host
 
