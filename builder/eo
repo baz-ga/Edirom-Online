@@ -27,7 +27,7 @@ exist_query() {
 
 cmd_build_frontend() {
     echo "==> Building frontend (Sencha Cmd)..."
-    cd "$FE_DIR" && ./build.sh
+    cd "$FE_DIR" && sencha app build production
 }
 
 cmd_build_backend() {
