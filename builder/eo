@@ -4,7 +4,7 @@
 
 set -e
 
-EXIST_URL="http://eXist-db-local:8080"
+EXIST_URL="http://local-edirom-online-backend:${BE_PORT:-8080}"
 EXIST_CREDS="admin:changeme"
 APP_URI="http://www.edirom.de/apps/EdiromOnlineBackend"
 FE_DIR="/opt/eo-frontend"
