@@ -199,15 +199,15 @@ Windows:
 ```bash
 set SENCHA_BUILD_ENV=testing
 ```
-**Step 6**: Build the shared builder (first time only).
+**Step 6**: Build the shared builder image (first time only).
 
-Before starting Edirom Online for the first time, you need to build the shared builder image:
+Before starting Edirom Online for the first time, build the shared builder image:
 
 ```bash
 docker compose build edirom-online-builder
 ```
 
-This only needs to be done once (or when the builder configuration changes).
+This only needs to be done once (or when the builder configuration changes). The remaining images are built automatically on first `up`.
 
 **Step 7**: Start Edirom Online.
 
