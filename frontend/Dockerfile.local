@@ -14,6 +14,8 @@
 FROM edirom-online-builder:latest AS eo-builder
 
 ARG BE_PORT
+ARG SENCHA_BUILD_ENV=production
+
 
 ############################
 # 2. Edirom-Online Frontend
@@ -36,7 +38,7 @@ RUN if [ -n "$BE_PORT" ] && [ "$BE_PORT" != "8080" ]; then \
         fi \
     fi && \
     echo "Building Frontend XAR..." && \
-    ./build.sh
+    sencha app build ${SENCHA_BUILD_ENV}
 
 #########################
 # 3. Run/deploy nginx
