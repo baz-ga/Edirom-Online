@@ -65,7 +65,6 @@ services:
   # Local backend source development configuration - use with --profile local-backend
   # Note: Use interactive-builder profile for interactive development with persistent build environment
   local-edirom-online-backend:
-    extends: edirom-online-backend
     container_name: local-eXist-db
     build:
       context: ${BE_LOCAL_SOURCE}
@@ -80,6 +79,8 @@ services:
     # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
     # depends_on:
     #  - edirom-online-builder
+    ports:
+      - "${BE_PORT:-8080}:8080"
     profiles:
       - local-backend
       - local-fullstack
@@ -95,7 +96,6 @@ services:
   # Local frontend source development configuration - use with --profile local-frontend
   # Note: Use interactive-builder profile for interactive development with persistent build environment
   local-edirom-online-frontend:
-    extends: edirom-online-frontend
     container_name: local-nginx
     build:
       context: ${FE_LOCAL_SOURCE}
@@ -105,6 +105,8 @@ services:
     # See: https://docs.docker.com/compose/compose-file/05-services/#depends_on
     # depends_on:
     #  - edirom-online-builder
+    ports:
+      - "${FE_PORT:-8089}:80"
     profiles:
       - local-frontend
       - local-fullstack
