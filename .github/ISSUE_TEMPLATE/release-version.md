@@ -18,24 +18,18 @@ Release preparation timeline
 Preparations on [zenodo.org](https://zenodo.org)
 - [ ] go to previous version and click "New version"
 - [ ] reserve a DOI -> *insert here*
-- [ ] update version and other metadata in publication form
+- [ ] update version
 - [ ] upload a placeholder file
 - [ ] save draft -> *link here*
 
-Checkout develop branch: `git checkout develop`
+Prepare and checkout new release in branch
 - [ ] have a look into release milestone and manage last issues and PRs
-- [ ] check third party dependencies
-  - [ ] Verovio
-  - [ ] jQuery
-  - [ ] TEI stylesheets
-  - [ ] Euryanthe
-
-Checkout new release branch: `git checkout -b release/vX.Y.Z develop`
+- [ ] `git checkout develop` and `git pull`
+- [ ] `git checkout -b release/vX.Y.Z develop`
 - [ ] update CITATION.cff (date, contributors, version, DOI)
-- [ ] bump version number everywhere (find/replace in code)
-- [ ] if applicable, update version number of backend/frontend in docker-compose.yml
-- [ ] commit version release branch
-- [ ] build .xar and test it
+- [ ] bump version numbers (also frontend/backend) everywhere (find/replace in code), e.g. in build.xml
+- [ ] `git add [... changed files ...]` and `git commit -m "new version updates"`
+- [ ] build and test it
 
 Checkout main branch: `git checkout main`
 - [ ] `git merge --no-ff release/vX.Y.Z` (release branch into main)
@@ -48,7 +42,6 @@ Checkout main branch: `git checkout main`
 Release on [github.com](https://github.com) 
 - [ ] Go to tag vX.Y.Z and click "Release from Tag"
 - [ ] auto-generate the release description
-- [ ] upload the tested Edirom-Online-X.Y.Z.xar (asset)
 - [ ] publish the release on GitHub - *link GitHub release*
 
 Checkout develop branch: `git checkout develop`
@@ -57,6 +50,7 @@ Checkout develop branch: `git checkout develop`
 Publication
 - [ ] edit publication draft
 - [ ] remove placeholder file and upload files copied from *GitHub release*
+- [ ] update description (get "What's changed" section from GitHub Release info)
 - [ ] double-check metadata
 - [ ] publish on Zenodo (with updated files) -> *link publication DOI*
 - [ ] Update Klarinettenquintett with new Edirom Online version
