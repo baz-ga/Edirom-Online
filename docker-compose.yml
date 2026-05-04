@@ -7,6 +7,7 @@
 #   Local frontend development: export FE_LOCAL_SOURCE=/path/to/frontend && docker compose --profile local-frontend up
 #     (starts: regular backend + local frontend)
 #   Both local: export BE_LOCAL_SOURCE=/path && export FE_LOCAL_SOURCE=/path && docker compose --profile local-fullstack up
+#   Local digilib image server: export DIGILIB_IMAGES=/path/to/images && docker compose --profile local-digilib up
 #
 services:
   edirom-online-backend:
@@ -126,6 +127,22 @@ services:
         bind:
           create_host_path: true
 
+
+  # Local digilib image server - use with --profile local-digilib
+  # Usage: export DIGILIB_IMAGES=/path/to/images && docker compose --profile local-digilib up
+  local-digilib:
+    image: stadlerpeter/digilib-docker
+    container_name: local-digilib
+    ports:
+      - "${DIGILIB_PORT:-8085}:8080"
+    volumes:
+      - type: bind
+        source: ${DIGILIB_IMAGES}
+        target: /var/lib/digilib/images
+        bind:
+          create_host_path: true
+    profiles:
+      - local-digilib
 
   # Interactive builder service for local development - use with --profile interactive-builder
   interactive-edirom-online-builder:
