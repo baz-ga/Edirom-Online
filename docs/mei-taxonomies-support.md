@@ -59,7 +59,7 @@ A current limitation is that the definition of the taxonomy is expected to be in
 </taxonomy>
 ```
 
-For assigning a priority or a category to an annotation (`mei:annot`), their `@class`then has to contain the ID-reference to the respective `mei:category`:
+For assigning a priority or a category to an annotation (`mei:annot`), their `@class` then has to contain the ID-reference to the respective `mei:category`:
 
 ```xml
 <annot class="#ediromAnnotPrio3 #wega.annotation.category.articulation">
@@ -138,7 +138,7 @@ In older Edirom Editions predating the introduction of `mei:taxonomy`, `mie:cate
 </annot>
 ```
 
-The definition of the `categories`and `priorities` was facilitated in `work/classification` with the `classCode` and `termList` elements:
+The definition of the `categories` and `priorities` was facilitated in `work/classification` with the `classCode` and `termList` elements:
 
 ```xml
 <classification>
