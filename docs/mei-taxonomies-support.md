@@ -1,8 +1,8 @@
 # MEI Taxonomies Support in _Edirom Online_
 
-Since _MEI 4_ introduced the possibility to encode taxonomies directly in an MEI file. Moreover the addition of `@class` to any element in MEI introduced a semantically richer approach to classify elements. Edirom Online picked up these features for assigning categories to annotations. The existing _categories_ and _priorities_ model was transfered to a taxonomy and assignment to the corresponding values was switched to ID-referneces (IDREFS) from withing `mei:annot/@class`.
+Since _MEI 4_, it has been possible to encode taxonomies directly in an MEI file. Moreover, the addition of `@class` to any MEI element introduced a semantically richer approach to classifying elements. Edirom Online picked up these features for assigning categories to annotations. The existing _categories_ and _priorities_ model was transferred to a taxonomy, and assignment to the corresponding values was switched to ID-references (IDREFS) from within `mei:annot/@class`.
 
-A current limitation is that the definition of the taxonomy is expected to be in the same file as the annotations poiting to them. Consequently each file containing annotation that are classified by Edirom _categories_ and _priorities_ would have to have the follwing definition in its `mei:encodingDesc/mei:classDecls`:
+A current limitation is that the taxonomy definition is expected to be in the same file as the annotations that reference it. Consequently, each file containing annotations that are classified by Edirom _categories_ and _priorities_ would have to have the following definition in its `mei:encodingDesc/mei:classDecls`:
 
 ```xml
 <taxonomy>
@@ -70,7 +70,7 @@ For assigning a priority or a category to an annotation (`mei:annot`), their `@c
 > [!NOTE]
 > Don’t forget to include the references to the annotated features in the `@plist`, and, of course, your annotation ;-)
 
-MEI taxonomies and categories can be nested recursively, i.e., taxonomies can contain taxonomies and categories, and categories can contain other categories. _Edirom Online_ will try to make sense of the discovered structure and use it in the _AnnotationView_ to define list columns in the _ListView_ and metadata fields in the _Single_ view moreover it forms the basis for the filter menu for annotations in both _SourceView_ modes, the _PageBasedView_ and the _MeasureBasedView_.
+MEI taxonomies and categories can be nested recursively, i.e., taxonomies can contain taxonomies and categories, and categories can contain other categories. _Edirom Online_ will try to make sense of the discovered structure and use it in the _AnnotationView_ to define list columns in the _ListView_ and metadata fields in the _Single_ view. Moreover, it forms the basis of the annotation filter menu in both _SourceView_ modes, the _PageBasedView_ and the _MeasureBasedView_.
 
 ## How the Backend Interprets the Taxonomy Structure
 
@@ -89,7 +89,7 @@ The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its l
 
 **A category only becomes a filter item if it is directly referenced.** Parent or sibling categories that are not themselves referenced by an annotation are not included.
 
-**The filter applies AND-logic across taxonomy groups, OR-logic within a group.** An annotation is shown only when it matches at least one visible category in _every_ active taxonomy group simultaneously.
+**The filter applies AND logic across taxonomy groups and OR logic within each group.** An annotation is shown only when it matches at least one visible category in _every_ active taxonomy group simultaneously.<!-- TODO this is a legacy dependency -> make configurable -->
 
 ### Two patterns for identifying the taxonomy group
 
@@ -106,7 +106,7 @@ The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its l
 </taxonomy>
 ```
 
-**Pattern B — taxonomy without `@xml:id`, categories use `@class` to name their group:** The inner taxonomy has no ID; instead each category's `@class` points to a parent category whose `@xml:id` becomes the group key. This is the pattern used in the example above for `ediromPriority` and `ediromCategory`.
+**Pattern B — taxonomy without `@xml:id`, categories use `@class` to name their group:** The inner taxonomy has no ID; instead each category’s `@class` points to a parent category whose `@xml:id` becomes the group key. This is the pattern used in the example above for `ediromPriority` and `ediromCategory`, i.e.:
 
 ```xml
 <taxonomy>
@@ -126,7 +126,7 @@ Both patterns can coexist within the same `mei:classDecls`.
 > [!WARNING]
 > Before the availability of `mei:taxonomy`, the below implementation method probably reflected the semantically richest way of defining the model for _categories_ and _priorities_. Nevertheless, with the presence of the above features (`mei:taxonomy`, `mei:category`, and `@class`), we strongly advise against it.
 
-In older Edirom Editions predating the introduction of `mei:taxonomy`, `mie:category`, and `@class`, annotations referenced _categories_ and _priorities_ by using `mei:ptr`:
+In older Edirom Editions predating the introduction of `mei:taxonomy`, `mei:category`, and `@class`, annotations referenced _categories_ and _priorities_ by using `mei:ptr`, e.g.:
 
 ```xml
 <annot xml:id="a63342691-67f7-417d-a4e9-0c81efe57cbd" type="editorialComment" subtype="print" source="#A #KA2 #K15" resp="#WeGA" tstamp="1" staff="1 5 11" plist="xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_A.xml#A_mov6_measure1 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_KA2.xml#KA2_mov6_measure1 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_K15.xml#K15_mov6_measure1 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_A.xml#A_mov6_measure2 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_KA2.xml#KA2_mov6_measure2 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_K15.xml#K15_mov6_measure2 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_A.xml#A_mov6_measure3 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_KA2.xml#KA2_mov6_measure3 xmldb:exist:///db/apps/contents/musicSources/freidi-musicSource_K15.xml#K15_mov6_measure3">
@@ -247,6 +247,6 @@ The definition of the `categories` and `priorities` was facilitated in `work/cla
 </classification>
 ```
 
-Edirom Online Backend still conforms to Edirom Online API 1.0.0 and delivers categories and priority fields for each annotation.
+_Edirom Online Backend_ still conforms to Edirom Online API 1.0.0 and delivers the `categories` and `priority` fields for each annotation.
 
-Moreover, at the `getAnnotations.xql` endpoint the _Edirom Online Frontend_ delivers a `legacyFields` entry that lists `categories` and `priority` fields. This is to allow frontends relying on _Edirom Online API 1.0.0_ to still get their expected fields while frontends that implement the dynamic taxonomy fields can use it to ignore `legacyFields`.
+Moreover, at the `getAnnotations.xql` endpoint, the _Edirom Online Backend_ delivers a `legacyFields` entry that lists `categories` and `priority` fields. This allows frontends relying on _Edirom Online API 1.0.0_ to continue receiving their expected fields, while frontends that implement dynamic taxonomy fields can use it to ignore `legacyFields`. To hide the _legacy fields_ by default – even though they might have been populated – a new key was introduced to the Edirom preferences: `annotation_hide_legacy_fields_`. If unset, the _AnnotationView_ will default it to `false`. If set to `true`, the _legacy fields_ will not appear in both the annotation list and single views.
