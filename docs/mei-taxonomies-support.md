@@ -79,9 +79,9 @@ The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its l
 1. Collect all `mei:annot[@type = 'editorialComment']` elements from the MEI file and, above that, all those from the edition’s collection whose `@plist` references the current document URI.
 2. For each annotation, extract the space-separated IDREFs from `@class`, strip the leading `#`, and resolve them to elements by ID in the same document.
 3. Keep only resolved elements that are `mei:category` with at least one ancestor `mei:taxonomy` — anything else (plain `@class` tokens that do not resolve to a category inside a taxonomy) is ignored.
-4. Group the identified categories by their **taxonomy group identifier**: the string after `#` in the category's own `@class` attribute (e.g. `#ediromPriority` → `ediromPriority`) if present, otherwise the `@xml:id` of the _innermost_ ancestor `mei:taxonomy`.
-5. Each group produces one filter menu. Its display label is taken from `mei:label` children of the innermost ancestor `mei:taxonomy` (preferred language, then `und` (aka. 'undefined'), then the group identifier string as a last resort).
-6. Within a group, each deduplicated category becomes one filter item, sorted alphabetically by its localized label. The item label is taken from the category's `mei:label` children (`@xml:lang` matching the requested language, then a label without `@xml:lang`, then `@label`, then the first `mei:label` found). _The Edirom Online Frontend_ will try to fetch a string from the locale files if the in the object received from the _Edirom Online Backend_ both `category.label` and `category.id` are identical.
+4. Group the identified categories by their **taxonomy group identifier**: the string after `#` in the category’s own `@class` attribute (e.g. `#ediromPriority` → `ediromPriority`) if present, otherwise the `@xml:id` of the _innermost_ ancestor `mei:taxonomy`.
+5. Each group produces one filter menu. Its display label is taken from `mei:label` <!--TODO this is invalid --> children of the innermost ancestor `mei: taxonomy` (preferred language, then `und` (aka. 'undefined'), then the group identifier string as a last resort).
+6. Within a group, each deduplicated category becomes one filter item, sorted alphabetically by its localised label. The item label is taken from the category's `mei:label` children (`@xml:lang` matching the requested language, then a label without `@xml:lang`, then `@label`, then the first `mei:label` found). _The Edirom Online Frontend_ will attempt to fetch a string from the locale files if, in the object received from the _Edirom Online Backend_, both `category.label` and `category.id` are identical.
 
 ### Consequences for MEI encoding
 
@@ -93,7 +93,7 @@ The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its l
 
 ### Two patterns for identifying the taxonomy group
 
-**Pattern A — taxonomy with `@xml:id`:** The inner taxonomy carries its own ID, which is used directly as the group key and as the source for the group label.
+**Pattern A — taxonomy with `@xml:id`:** The inner taxonomy carries its own ID, which is used directly as the group key and as the source for the group label, e.g.:
 
 ```xml
 <taxonomy xml:id="myAnnotationTypes">
