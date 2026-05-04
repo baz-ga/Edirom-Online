@@ -67,7 +67,8 @@ For assigning a priority or a category to an annotation (`mei:annot`), their `@c
 </annot>
 ```
 
-> [!NOTE] Don’t forget to include the referenecs to the annotated features in the `@plist`, and, of course, your annotation ;-)
+> [!NOTE]
+> Don’t forget to include the references to the annotated features in the `@plist`, and, of course, your annotation ;-)
 
 MEI taxonomies and categories can be nested recursively, i.e., taxonomies can contain taxonomies and categories, and categories can contain other categories. _Edirom Online_ will try to make sense of the discovered structure and use it in the _AnnotationView_ to define list columns in the _ListView_ and metadata fields in the _Single_ view moreover it forms the basis for the filter menu for annotations in both _SourceView_ modes, the _PageBasedView_ and the _MeasureBasedView_.
 
@@ -122,7 +123,8 @@ Both patterns can coexist within the same `mei:classDecls`.
 
 ## Pre MEI 4
 
-> [!WARNING] By the time the below implmentation method probably reflected the semantically richest way of defining the model for _categories_ and _priorities_. Nevertheless with the presence of the above features (`mei:taxonomy`, `mei:category`, and `@class`), we strongly advise agains it.
+> [!WARNING]
+> Before the availability of `mei:taxonomy`, the below implementation method probably reflected the semantically richest way of defining the model for _categories_ and _priorities_. Nevertheless, with the presence of the above features (`mei:taxonomy`, `mei:category`, and `@class`), we strongly advise against it.
 
 In older Edirom Editions predating the introduction of `mei:taxonomy`, `mie:category`, and `@class`, annotations referenced _categories_ and _priorities_ by using `mei:ptr`:
 
