@@ -16,6 +16,7 @@ ARG ANT_VERSION=1.10.12
 ARG SOURCE=https://github.com/Edirom/Edirom-Online-Backend.git
 ARG BRANCH=v1.3.0
 ARG EDITION
+ARG ROASTER_VERSION=1.11.0
 
 
 # Install wget and unzip and ruby and other dependencies
@@ -67,7 +68,7 @@ RUN if [ -n "$EDITION" ]; then \
 RUN echo "Downloading dependencies..." && \
     mkdir -p /opt/roaster && \
     cd /opt/roaster && \
-    curl -L -O "https://exist-db.org/exist/apps/public-repo/public/roaster-1.11.0.xar";
+    curl -L -O "https://exist-db.org/exist/apps/public-repo/public/roaster-${ROASTER_VERSION}.xar";
 
 
 #########################
