@@ -64,6 +64,11 @@ RUN if [ -n "$EDITION" ]; then \
         echo "Note: EDITION_XAR not provided. Please add manually to eXist-db."; \
     fi
 
+RUN echo "Downloading dependencies..." && \
+    mkdir -p /opt/roaster && \
+    cd /opt/roaster && \
+    curl -L -O "https://exist-db.org/exist/apps/public-repo/public/roaster-1.11.0.xar";
+
 
 #########################
 # 3. Run/deploy eXist-db
@@ -78,3 +83,4 @@ ADD ./autodeploy ${EXIST_HOME}/autodeploy/
 # copy built XARs to autodeploy directory of exist
 COPY --from=builder /opt/eo-backend/build-xar/*.xar ${EXIST_HOME}/autodeploy/
 COPY --from=builder /opt/eo-editions/*.xar ${EXIST_HOME}/autodeploy/
+COPY --from=builder /opt/roaster/*.xar ${EXIST_HOME}/autodeploy/
