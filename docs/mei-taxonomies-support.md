@@ -1,8 +1,8 @@
 # MEI Taxonomies Support in _Edirom Online_
 
-Since _MEI 4_, it has been possible to encode taxonomies directly in an MEI file. Moreover, the addition of `@class` to any MEI element introduced a semantically richer approach to classifying elements. Edirom Online picked up these features for assigning categories to annotations. The existing _categories_ and _priorities_ model was transferred to a taxonomy, and assignment to the corresponding values was switched to ID-references (IDREFS) from within `mei:annot/@class`.
+Since _MEI 4_, it has been possible to encode taxonomies directly in an MEI file. Moreover, the addition of `@class` to any MEI element introduced a semantically richer approach to classifying elements. _Edirom Online_ picked up these features for assigning categories to annotations. The existing _categories_ and _priorities_ model was transferred to a taxonomy, and assignment to the corresponding values was switched to ID-references (IDREFS) from within `mei:annot/@class`.
 
-A current limitation is that the taxonomy definition is expected to be in the same file as the annotations that reference it. Consequently, each file containing annotations that are classified by Edirom _categories_ and _priorities_ would have to have the following definition in its `mei:encodingDesc/mei:classDecls`:
+Category and priority references — whether in `@class` or in the legacy `mei:ptr/@target` — are resolved consistently throughout the backend via a single shared resolver: a fragment-only reference (`#someId`) resolves within the annotation’s own document, while a reference that also carries a base part (`taxonomy.xml#someId`, `http://…#someId`) is resolved against the annotation’s base URI. The taxonomy definition may therefore live either in the same file as the annotations or in a separate file that they reference. The simplest setup keeps it in the same file’s `mei:encodingDesc/mei:classDecls`:
 
 ```xml
 <taxonomy>
@@ -67,21 +67,31 @@ For assigning a priority or a category to an annotation (`mei:annot`), their `@c
 </annot>
 ```
 
+> [!IMPORTANT]
+> Because `@class` references a category by its ID, every `mei:category` that is to be referenced **must** carry an `@xml:id`. A category without an `@xml:id` cannot be resolved and therefore cannot be used for classification.
+
 > [!NOTE]
 > Don’t forget to include the references to the annotated features in the `@plist`, and, of course, your annotation ;-)
 
 MEI taxonomies and categories can be nested recursively, i.e., taxonomies can contain taxonomies and categories, and categories can contain other categories. _Edirom Online_ will try to make sense of the discovered structure and use it in the _AnnotationView_ to define list columns in the _ListView_ and metadata fields in the _Single_ view. Moreover, it forms the basis of the annotation filter menu in both _SourceView_ modes, the _PageBasedView_ and the _MeasureBasedView_.
+
+> [!NOTE]
+> While reference _resolution_ is shared, the two contexts deliberately traverse different sets of annotations. The _AnnotationView_ (_ListView_ and _Single_ view, served by `getAnnotations.xql`) is scoped to a single work or annotation file — that file _is_ the list, which is what allows several lists, held in separate files, to be viewed independently. The _SourceView_ filter menu (served by `getAnnotationInfos.xql`) is scoped to the current source and therefore gathers every annotation _about_ that source from across the edition (matched via `@plist`), plus any inline ones. These scopes are intentionally different and are not expected to coincide.
 
 ## How the Backend Interprets the Taxonomy Structure
 
 The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its logic is:
 
 1. Collect all `mei:annot[@type = 'editorialComment']` elements from the MEI file and, above that, all those from the edition’s collection whose `@plist` references the current document URI.
-2. For each annotation, extract the space-separated IDREFs from `@class`, strip the leading `#`, and resolve them to elements by ID in the same document.
+2. For each annotation, split `@class` into space-separated tokens and keep only those that contain a `#`. Each kept token is resolved to a category element: a fragment-only token (`#someId`) is resolved within the annotation’s own document, while a token that also carries a base part (`taxonomy.xml#someId`, `http://…#someId`) is resolved against the annotation’s base URI and opened with `doc()`. Tokens without a `#` are ignored. (This resolution is shared with `getAnnotations.xql`: category, priority and taxonomy references all go through the same resolver, so cross-file references behave identically across endpoints.)
 3. Keep only resolved elements that are `mei:category` with at least one ancestor `mei:taxonomy` — anything else (plain `@class` tokens that do not resolve to a category inside a taxonomy) is ignored.
 4. Group the identified categories by their **taxonomy group identifier**: the string after `#` in the category’s own `@class` attribute (e.g. `#ediromPriority` → `ediromPriority`) if present, otherwise the `@xml:id` of the _innermost_ ancestor `mei:taxonomy`.
-5. Each group produces one filter menu. Its display label is taken from `mei:label` <!--TODO this is invalid --> children of the innermost ancestor `mei: taxonomy` (preferred language, then `und` (aka. 'undefined'), then the group identifier string as a last resort).
-6. Within a group, each deduplicated category becomes one filter item, sorted alphabetically by its localised label. The item label is taken from the category's `mei:label` children (`@xml:lang` matching the requested language, then a label without `@xml:lang`, then `@label`, then the first `mei:label` found). _The Edirom Online Frontend_ will attempt to fetch a string from the locale files if, in the object received from the _Edirom Online Backend_, both `category.label` and `category.id` are identical.
+5. Each group produces one filter menu. Its display label is resolved from the innermost ancestor `mei:taxonomy`. If the `mei:taxonomy` has an `@label`, that value is used; otherwise the grouping identifier (from step 4) is used to look up the display label in the locale files.
+   
+   > [!NOTE]
+   > Although `mei:taxonomy` may have localisable `mei:head` child elements, these are not used — a heading would be excessive for this use case. Moreover, the locale-driven approach allows the display value to be adjusted without modifying the taxonomy definition, and it automatically switches between singular and plural forms when matching keys are defined in the locale files.
+   
+6. Within a group, each deduplicated category becomes one filter item, sorted alphabetically by its localised label. The item label is resolved from the category in this order: an `mei:label` whose `@xml:lang` matches the requested language, then a language-neutral label (the first `mei:label` without `@xml:lang`, else `@label`, else the first `mei:label`), then the category’s own `@xml:id`. The frontend displays this label as-is (it arrives as the item’s `name` field); unlike the group label in step 5, category items currently have **no** locale-file fallback.
 
 ### Consequences for MEI encoding
 
@@ -89,7 +99,7 @@ The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its l
 
 **A category only becomes a filter item if it is directly referenced.** Parent or sibling categories that are not themselves referenced by an annotation are not included.
 
-**The filter applies AND logic across taxonomy groups and OR logic within each group.** An annotation is shown only when it matches at least one visible category in _every_ active taxonomy group simultaneously.<!-- TODO this is a legacy dependency -> make configurable -->
+**Within each taxonomy group the filter is OR; across groups it behaves as an AND, but only over the groups an annotation actually participates in.** An annotation is hidden only if there is some taxonomy group in which it carries one or more categories yet none of those categories are currently checked. A group in which the annotation has no category at all imposes no constraint on it — so this is _not_ a strict AND across _all_ active groups, only across those the annotation belongs to.<!-- TODO this is a legacy dependency -> make configurable -->
 
 ### Two patterns for identifying the taxonomy group
 
@@ -124,7 +134,7 @@ Both patterns can coexist within the same `mei:classDecls`.
 ## Pre MEI 4
 
 > [!WARNING]
-> Before the availability of `mei:taxonomy`, the below implementation method probably reflected the semantically richest way of defining the model for _categories_ and _priorities_. Nevertheless, with the presence of the above features (`mei:taxonomy`, `mei:category`, and `@class`), we strongly advise against it.
+> Before the availability of `mei:taxonomy`, the implementation method described below probably reflected the semantically richest way of defining the model for _categories_ and _priorities_. Nevertheless, given the features described above (`mei:taxonomy`, `mei:category`, and `@class`), we strongly advise against it.
 
 In older Edirom Editions predating the introduction of `mei:taxonomy`, `mei:category`, and `@class`, annotations referenced _categories_ and _priorities_ by using `mei:ptr`, e.g.:
 
@@ -138,7 +148,7 @@ In older Edirom Editions predating the introduction of `mei:taxonomy`, `mei:cate
 </annot>
 ```
 
-The definition of the `categories` and `priorities` was facilitated in `work/classification` with the `classCode` and `termList` elements:
+The `categories` and `priorities` were defined in `work/classification` using the `classCode` and `termList` elements:
 
 ```xml
 <classification>
@@ -249,4 +259,4 @@ The definition of the `categories` and `priorities` was facilitated in `work/cla
 
 _Edirom Online Backend_ still conforms to Edirom Online API 1.0.0 and delivers the `categories` and `priority` fields for each annotation.
 
-Moreover, at the `getAnnotations.xql` endpoint, the _Edirom Online Backend_ delivers a `legacyFields` entry that lists `categories` and `priority` fields. This allows frontends relying on _Edirom Online API 1.0.0_ to continue receiving their expected fields, while frontends that implement dynamic taxonomy fields can use it to ignore `legacyFields`. To hide the _legacy fields_ by default – even though they might have been populated – a new key was introduced to the Edirom preferences: `annotation_hide_legacy_fields_`. If unset, the _AnnotationView_ will default it to `false`. If set to `true`, the _legacy fields_ will not appear in both the annotation list and single views.
+Moreover, at the `getAnnotations.xql` endpoint, the _Edirom Online Backend_ delivers a `legacyFields` entry. It lists `categories` and `priority` **only when the returned annotations actually carry taxonomy-derived fields** (i.e. when some field beyond the base set `id, title, categories, priority, pos, sigla` is present); if no such fields exist, `legacyFields` is empty — the legacy fields are then the only classification data and are deliberately not flagged for suppression. This allows frontends relying on _Edirom Online API 1.0.0_ to continue receiving their expected fields, while frontends that implement dynamic taxonomy fields can use it to ignore `legacyFields`. To hide the _legacy fields_ by default – even though they might have been populated – a new key was introduced to the Edirom preferences: `annotation_hide_legacy_fields`. If unset, the _AnnotationView_ will default it to `false`. If set to `true`, the _legacy fields_ will not appear in both the annotation list and single views.
