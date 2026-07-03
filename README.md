@@ -245,6 +245,7 @@ Some useful information regarding documentation is captured in the [docs] folder
 * [Release Workflow] for the Edirom Online
 * [Manual setup] on a local machine
 * [Data creation workflow] for the Edirom Online
+* [MEI Taxonomies Support] in Edirom Online
 
 
 ## Dependencies
