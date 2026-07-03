@@ -329,6 +329,7 @@ Edirom Online is released to the public under the terms of the [GNU GPL v.3] ope
 [Release Workflow]: docs/release-workflow.md
 [Manual setup]: docs/setup.md
 [Data creation workflow]: docs/data-creation-workflow.md
+[MEI Taxonomies Support]: docs/mei-taxonomies-support.md
 [Ext JS]: https://www.sencha.com/products/extjs
 [Raphaël]: http://raphaeljs.com 
 [ACE]: http://ace.ajax.org
