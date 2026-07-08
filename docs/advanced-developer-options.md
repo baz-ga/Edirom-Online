@@ -346,3 +346,44 @@ eo deploy backend
 ```
 
 Use `--yes` / `-y` to skip the confirmation prompt when a version is already deployed. For the full command reference, see [eo Task Runner](eo-task-runner.md).
+
+## Troubleshooting
+
+### File not found (stale bind-mount)
+
+When you make many changes to your local working copy of Edirom-Online-Backend or Edirom-Online-Frontend, a file that clearly exists on your host may be reported as "not found" inside the container. The usual root cause is a **stale bind-mount**: Docker Desktop's file-sharing layer on macOS (VirtioFS / gRPC-FUSE) occasionally lags in propagating a freshly created or edited host file into the bind-mounted container, even while sibling files in the same directory are visible.
+
+**Typical symptoms**
+
+A build fails referencing a file you know is present and valid. In a frontend Sencha/compass build this surfaces as a SASS import error, for example:
+
+```
+error EdiromOnline-all.scss (Line 2 of .../packages/eoTheme/sass/etc/all.scss:
+File to import not found or unreadable: global.scss.
+```
+
+even though `packages/eoTheme/sass/etc/global.scss` exists and is readable on the host. The give-away is that the file was **created or edited shortly before the build**.
+
+**Confirm the cause**
+
+Check whether the container can see the file. From your host:
+
+```bash
+docker compose exec interactive-edirom-online-builder \
+    ls -la /opt/eo-frontend/packages/eoTheme/sass/etc/global.scss
+```
+
+If the host shows the file but the container reports `No such file or directory`, the mount is stale.
+
+**Resolve it** (in order of preference)
+
+1. **Re-run the build.** The mount usually catches up within seconds, so simply building again often succeeds.
+2. **Force a sync by listing the file inside the container** (as in the command above) before rebuilding; accessing the path prompts the file-sharing layer to refresh it.
+3. **Restart the service to remount fresh:**
+
+   ```bash
+   docker compose --profile interactive-builder restart interactive-edirom-online-builder
+   ```
+
+> [!NOTE]
+> This affects **bind mounts** (your mounted local clones), not files baked into the image. It is a Docker Desktop file-sharing artefact, not a problem with your source — the file content on your host is unchanged.
