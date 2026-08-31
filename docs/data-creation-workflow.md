@@ -11,6 +11,8 @@
   - [Edirom Online data features](#edirom-online-data-features)
   - [Annotations](#annotations)
   - [Preferences](#preferences)
+    - [Available Properties](#available-properties)
+    - [Optional Web Components](#optional-web-components)
   - [Concordances](#concordances)
   - [Examples of Edirom editions](#examples-of-edirom-editions)
 
