@@ -256,6 +256,12 @@ The `categories` and `priorities` were defined in `work/classification` using th
 </classification>
 ```
 
-_Edirom Online Backend_ still conforms to Edirom Online API 1.0.0 and delivers the `categories` and `priority` fields for each annotation.
+### Legacy fields and the `mode` parameter
 
-Moreover, at the `getAnnotations.xql` endpoint, the _Edirom Online Backend_ delivers a `legacyFields` entry. It lists `categories` and `priority` **only when the returned annotations actually carry taxonomy-derived fields** (i.e. when some field beyond the base set `id, title, categories, priority, pos, sigla` is present); if no such fields exist, `legacyFields` is empty — the legacy fields are then the only classification data and are deliberately not flagged for suppression. This allows frontends relying on _Edirom Online API 1.0.0_ to continue receiving their expected fields, while frontends that implement dynamic taxonomy fields can use it to ignore `legacyFields`. To hide the _legacy fields_ by default – even though they might have been populated – a new key was introduced to the Edirom preferences: `annotation_hide_legacy_fields`. If unset, the _AnnotationView_ will default it to `false`. If set to `true`, the _legacy fields_ will not appear in both the annotation list and single views.
+The `mode` request parameter is a contract selector, not a rendering switch. A request **without** `mode=taxonomies` receives strict _Edirom Online API 1.0.0_ data: the `categories` and `priority` fields are always delivered, exactly as before.
+
+In `mode=taxonomies` the _Edirom Online Backend_ omits the flattened `categories` and `priority` fields, but **only when doing so loses no information** — that is, when the document's classification is fully expressible as taxonomy fields. A document qualifies when none of its annotations carries a legacy `mei:ptr[@type='categories'|'priority']` and every `@class` token resolves into a `mei:taxonomy`. Classifications modelled as `mei:term` inside `mei:classification/mei:termList` (as in the example above) resolve *outside* `mei:taxonomy` and therefore keep the flattened fields, as do dangling `@class` references.
+
+The decision is made once per document rather than per annotation, so the delivered field set stays uniform across the whole result. A single annotation still using the `mei:ptr` mechanism keeps the flattened fields for every annotation in that document.
+
+Consumers therefore read field *presence* — reported in the `fields` entry at the `getAnnotations.xql` endpoint — as the signal: if `categories` and `priority` are absent, the taxonomy fields carry the complete classification. The `emptyFields` entry is unrelated and continues to flag fields that are empty across all returned annotations.
