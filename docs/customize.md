@@ -1,17 +1,19 @@
 # Customize Edirom Online and content
 
-- [Customize Edirom Online](#customize-edirom-online)
+* [Customize Edirom Online and content](#customize-edirom-online-and-content)
+* [Customize Edirom Online](#customize-edirom-online)
   * [Set annotation window layout](#set-annotation-window-layout)
+  * [Annotation preview adjacent measures](#annotation-preview-adjacent-measures)
   * [Add custom CSS](#add-custom-css)
   * [Inject custom JavaScript](#inject-custom-javascript)
   * [Set image server](#set-image-server)
   * [Customize topbar](#customize-topbar)
   * [Set a welcome window](#set-a-welcome-window)
-- [Customize content](#customize-content)
-  * [Table of content](#table-of-contents)
+* [Customize content](#customize-content)
+  * [Table of content](#table-of-content)
   * [SVG overlays](#svg-overlays)
   * [Windows](#windows)
-- [Links](#links)
+* [Links](#links)
   * [Links to XML in the eXist-database](#links-to-xml-in-the-exist-database)
   * [Links from outside Edirom Online](#links-from-outside-edirom-online)
   * [JS](#js)
@@ -23,7 +25,13 @@
 Change the **layout** for annotations (3 are predefined), using predefined [preferences]
 * `<entry key="annotation_layout" value="EdiromOnline.view.window.annotationLayouts.AnnotationLayout1"/>`
 
-## Add custom CSS
+## Annotation preview adjacent measures
+show the **directly adjacent measures** as context in annotation previews, using predefined [preferences]
+* `<entry key="annotation_show_neighbour_measures" value="true"/>`
+
+An annotation referencing measure 5 then gets a preview showing measures 4 to 6, labelled accordingly. A neighbour is left out if it is not on the same system, which is determined from the facsimile (its zone must lie on the same `mei:surface` within the vertical extent of the annotated measures) and, where encoded, from an `mei:sb` or `mei:pb` directly before resp. after the annotated measure. Clicking the preview still opens the annotated measures only. Annotations referencing `mei:staff` elements or free `mei:zone` elements are not affected.
+
+##  Add custom CSS
 Add a **custom CSS file**, using predefined edition preferences
 * `<entry key="additional_css_path" value="xmldb:exist:///db/apps/edirom/edition-example/custom/style.css"/>`
 
