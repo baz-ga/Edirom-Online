@@ -1,5 +1,11 @@
 # MEI Taxonomies Support in _Edirom Online_
 
+___
+This feature was conceptualized, implemented, and contributed by @bwbohl at the _Bernd Alois Zimmermann Complete Edition_[^1]
+___
+
+[^1]: The works of the _Bernd Alois Zimmermann-Gesamtausgabe. Historisch-kritische Ausgabe seiner Werke, Schriften und Briefe_ (_Bernd Alois Zimmermann Complete Edition. Historical-Critical Edition of his Works, Writings, and Letters) are promoted by the Union of the German Academies of Sciences and Humanities, represented by the Academy of Sciences and Humanities Berlin-Brandenburg and the Academy of Sciences and Literature | Mainz, funded by the Federal Ministry of Education and Research, Bonn and Berlin, the Berlin Senate Department for Higher Education and Research, Health and Long-Term Care and the Hessian Ministry of Science and the Arts, Wiesbaden.
+
 Since _MEI 4_, it has been possible to encode taxonomies directly in an MEI file. Moreover, the addition of `@class` to any MEI element introduced a semantically richer approach to classifying elements. _Edirom Online_ picked up these features for assigning categories to annotations. The existing _categories_ and _priorities_ model was transferred to a taxonomy, and assignment to the corresponding values was switched to ID-references (IDREFS) from within `mei:annot/@class`.
 
 Category and priority references — whether in `@class` or in the legacy `mei:ptr/@target` — are resolved via a single shared resolver (`eutil:get-referenced-element`) wherever taxonomy-aware code looks them up: a fragment-only reference (`#someId`) resolves within the annotation’s own document, while a reference that also carries a base part (`taxonomy.xml#someId`, `http://…#someId`) is resolved against the annotation’s base URI. The taxonomy definition may therefore live either in the same file as the annotations or in a separate file that they reference.
