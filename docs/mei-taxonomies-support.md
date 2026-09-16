@@ -2,7 +2,12 @@
 
 Since _MEI 4_, it has been possible to encode taxonomies directly in an MEI file. Moreover, the addition of `@class` to any MEI element introduced a semantically richer approach to classifying elements. _Edirom Online_ picked up these features for assigning categories to annotations. The existing _categories_ and _priorities_ model was transferred to a taxonomy, and assignment to the corresponding values was switched to ID-references (IDREFS) from within `mei:annot/@class`.
 
-Category and priority references — whether in `@class` or in the legacy `mei:ptr/@target` — are resolved consistently throughout the backend via a single shared resolver: a fragment-only reference (`#someId`) resolves within the annotation’s own document, while a reference that also carries a base part (`taxonomy.xml#someId`, `http://…#someId`) is resolved against the annotation’s base URI. The taxonomy definition may therefore live either in the same file as the annotations or in a separate file that they reference. The simplest setup keeps it in the same file’s `mei:encodingDesc/mei:classDecls`:
+Category and priority references — whether in `@class` or in the legacy `mei:ptr/@target` — are resolved via a single shared resolver (`eutil:get-referenced-element`) wherever taxonomy-aware code looks them up: a fragment-only reference (`#someId`) resolves within the annotation’s own document, while a reference that also carries a base part (`taxonomy.xml#someId`, `http://…#someId`) is resolved against the annotation’s base URI. The taxonomy definition may therefore live either in the same file as the annotations or in a separate file that they reference.
+
+> [!NOTE]
+> One exception: the deprecated flat `categories`/`priorities` arrays that `getAnnotationInfos.xql` still returns alongside `taxonomies` (see below) resolve collection-wide via `id()` instead of the shared resolver — a known inconsistency the code itself flags for cleanup once those fields are removed.
+
+The simplest setup keeps it in the same file’s `mei:encodingDesc/mei:classDecls`:
 
 ```xml
 <taxonomy>
@@ -80,16 +85,18 @@ MEI taxonomies and categories can be nested recursively, i.e., taxonomies can co
 
 ## How the Backend Interprets the Taxonomy Structure
 
-The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its logic is:
+The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus in the source facsimile views, the grouping and labelling logic itself lives in the shared `annotation.xqm`/`taxonomy.xqm` modules (`annotation:get-referenced-categories-as-taxonomy-array` and its helpers) — `getAnnotationInfos.xql` just calls into them. The effective logic is:
 
 1. Collect all `mei:annot[@type = 'editorialComment']` elements from the MEI file and, above that, all those from the edition’s collection whose `@plist` references the current document URI.
 2. For each annotation, split `@class` into space-separated tokens and keep only those that contain a `#`. Each kept token is resolved to a category element: a fragment-only token (`#someId`) is resolved within the annotation’s own document, while a token that also carries a base part (`taxonomy.xml#someId`, `http://…#someId`) is resolved against the annotation’s base URI and opened with `doc()`. Tokens without a `#` are ignored. (This resolution is shared with `getAnnotations.xql`: category, priority and taxonomy references all go through the same resolver, so cross-file references behave identically across endpoints.)
-3. Keep only resolved elements that are `mei:category` with at least one ancestor `mei:taxonomy` — anything else (plain `@class` tokens that do not resolve to a category inside a taxonomy) is ignored.
+3. Keep only resolved elements that are `mei:category` — a token that resolves to anything else, or that doesn't resolve at all, is ignored. (There's no separate check for an ancestor `mei:taxonomy` here: in valid MEI, `mei:category` can only ever occur inside a `mei:taxonomy` — directly, or nested inside another category that ultimately sits inside one — so being a `mei:category` already implies that.)
 4. Group the identified categories by their **taxonomy group identifier**: the string after `#` in the category’s own `@class` attribute (e.g. `#ediromPriority` → `ediromPriority`) if present, otherwise the `@xml:id` of the _innermost_ ancestor `mei:taxonomy`.
-5. Each group produces one filter menu. Its display label is resolved from the innermost ancestor `mei:taxonomy`. If the `mei:taxonomy` has an `@label`, that value is used; otherwise the grouping identifier (from step 4) is used to look up the display label in the locale files.
+5. Each group produces one filter menu. Its display label is resolved server-side from the innermost ancestor `mei:taxonomy`: if it has an `@label`, that value is used. Otherwise the backend just sends the grouping identifier (from step 4) back as the label.
+
+   The frontend then treats a label that's identical to the id as a signal that no real label was resolved, and looks *that* up in the locale files at render time (`taxonomy.label !== taxonomy.id ? taxonomy.label : getLangString(taxonomy.id)`, in `SourceView.js`/`TextView.js`/`TextFacsimileSplitView.js`) — so if the edirom or edition specific locale files provide an entry with that key, the group with no `@label` still gets a human-readable menu title, just resolved client-side rather than by the backend. This is also where edition-specific overrides can happen.
 
    > [!NOTE]
-   > Although `mei:taxonomy` may have localisable `mei:head` child elements, these are not used — a heading would be excessive for this use case. Moreover, the locale-driven approach allows the display value to be adjusted without modifying the taxonomy definition, and it automatically switches between singular and plural forms when matching keys are defined in the locale files.
+   > Although `mei:taxonomy` may have localisable `mei:head` child elements, these are not used — a heading would be excessive for this use case. The locale-driven frontend fallback lets the display value be adjusted (and localised) without touching the taxonomy definition. It does *not* switch between singular and plural forms here — the `_multiple`-suffixed locale keys and the code that consults them belong to the separate `getAnnotationMeta.xql` endpoint, unrelated to this filter menu.
 
 6. Within a group, each deduplicated category becomes one filter item, sorted alphabetically by its localised label. The item label is resolved from the category in this order: an `mei:label` whose `@xml:lang` matches the requested language, then a language-neutral label (the first `mei:label` without `@xml:lang`, else `@label`, else the first `mei:label`), then the category’s own `@xml:id`. The frontend displays this label as-is (it arrives as the item’s `name` field); unlike the group label in step 5, category items currently have **no** locale-file fallback.
 
@@ -103,12 +110,10 @@ The backend XQL endpoint `getAnnotationInfos.xql` drives the filter menus. Its l
 
 ### Two patterns for identifying the taxonomy group
 
-**Pattern A — taxonomy with `@xml:id`:** The inner taxonomy carries its own ID, which is used directly as the group key and as the source for the group label, e.g.:
+**Pattern A — taxonomy with `@xml:id`:** The inner taxonomy carries its own ID, which is used directly as the group key, and its `@label` (if present) as the group label — note this has to be a single, non-localised string, since `mei:taxonomy` has no `mei:label` children of its own, unlike `mei:category`, e.g.:
 
 ```xml
-<taxonomy xml:id="myAnnotationTypes">
-    <label xml:lang="de">Annotationstypen</label>
-    <label xml:lang="en">Annotation Types</label>
+<taxonomy xml:id="myAnnotationTypes" label="Annotation Types">
     <category xml:id="myType.structural">
         <label xml:lang="de">Strukturell</label>
         <label xml:lang="en">Structural</label>
